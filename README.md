@@ -34,4 +34,11 @@ Origines autorisées : `VITE_CONSOLE_ORIGINS`.
 
 ## Déploiement
 
-Vercel (`vercel.json` : réécriture SPA, cache des assets, `frame-ancestors` pour la console).
+Cloudflare Workers (fichiers statiques) : `wrangler.jsonc` (fallback SPA) et `public/_headers` (cache, `frame-ancestors` pour la console).
+
+```bash
+npx wrangler login   # une fois
+npm run deploy       # build avec .env puis déploiement
+```
+
+Les variables `VITE_*` sont lues au moment du build : elles doivent être présentes dans `.env` (ou dans les variables de build Cloudflare si le déploiement est relié à GitHub).

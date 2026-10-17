@@ -1,0 +1,14 @@
+{
+  // Site statique servi par Cloudflare Workers (fichiers de dist/).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gulf-bridge-sourcing",
+  "compatibility_date": "2026-10-01",
+  // Adresse *.workers.dev active tant qu'aucun domaine n'est rattaché ; pas d'URL d'aperçu par version.
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist",
+    // Routes de l'application (React Router) : toute URL inconnue renvoie index.html.
+    "not_found_handling": "single-page-application"
+  }
+}
