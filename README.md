@@ -195,6 +195,40 @@ s'affiche pas. La construction le signale.
 Format WebP, dimensions ajustées à l'affichage. Le logo est servi en WebP ; le
 PNG ne sert plus qu'à l'icône d'onglet.
 
+## Dépendances et alertes de sécurité
+
+`npm audit` signale des vulnérabilités. Elles ont été traitées, pas ignorées.
+
+Les correctifs sans rupture sont appliqués et verrouillés dans
+`package-lock.json` (`react-router-dom` 6.30.6, `vite` 5.4.21, `wrangler`
+4.158.0). **Ne lancez pas `npm audit fix --force`** : il ferait passer
+`react-router` en 7 et `vite` en 7, deux changements de version majeure qui
+cassent la construction, pour les raisons ci-dessous.
+
+Les alertes restantes se répartissent en deux familles.
+
+**Outils de construction, jamais envoyés au visiteur.** `vite`, `esbuild`,
+`eslint`, `typescript-eslint`, `brace-expansion`, `minimatch`, `launch-editor`.
+Le déploiement envoie `dist/`, c'est-à-dire du HTML, du CSS et du JavaScript
+compilé : aucun de ces paquets n'y figure. Les failles de `vite` et d'`esbuild`
+visent le serveur de développement (`npm run dev`) ; ne le lancez pas sur un
+réseau public.
+
+**`react-router`, deux alertes modérées,** qui ne se corrigent qu'en version 7 :
+
+- *Open redirect via backslash dans `<Link>` et `useNavigate`.* Exploitable
+  seulement si une chaîne contrôlée par un tiers arrive dans une destination de
+  lien. Ici, toutes les destinations sont des constantes de `ROUTES` ou des
+  adresses construites par `etudeHref()`, dont le chemin est littéral. Aucune
+  valeur venant de l'adresse ou d'un formulaire n'y entre.
+- *Arbitrary Constructor Injection via `deserializeErrors()` à l'hydratation.*
+  Ne concerne que les routeurs de données (`createBrowserRouter` avec un état
+  d'hydratation). Le site utilise `BrowserRouter` et `StaticRouter`, sans
+  routeur de données ni donnée d'hydratation.
+
+À revoir quand une version 6.x corrigée paraît, ou lors d'un passage à
+React Router 7, qui est un chantier en soi.
+
 ## Ce qui reste à faire
 
 | Sujet | État |
