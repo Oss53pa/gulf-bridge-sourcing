@@ -56,25 +56,24 @@ délai de 48 heures ouvrées et « une seule société », c'est-à-dire exactem
 que la refonte corrige.
 
 La construction s'arrête d'elle-même si elle détecte une section obsolète, mais
-il faut agir avant :
+il faut agir avant. Le fichier est prêt dans le dépôt :
+
+**`supabase/seed-console.sql`** : à ouvrir et à coller dans l'éditeur SQL du
+projet Atlas Studio. Il supprime les sections retirées par la refonte, écrit
+les 21 sections actuelles, le tout dans une transaction.
+
+Attention : il écrase le contenu publié. C'est voulu ici, puisque ce contenu est
+celui de l'ancien positionnement. Toute retouche faite dans la console après
+cette opération serait à refaire.
+
+Pour le régénérer après une modification de `src/content/defaults.ts` :
 
 ```bash
-node scripts/seed-content.ts --force > seed.sql
+npm run seed -- --force > supabase/seed-console.sql
 ```
 
-Appliquer `seed.sql` sur le projet Atlas Studio, puis supprimer les sections
-que la refonte a retirées :
-
-```sql
-delete from public.client_site_content
-where site_id = 'gulf-bridge-sourcing'
-  and key in ('approche', 'services', 'secteurs', 'home_constat',
-              'home_audience', 'home_explore', 'home_positioning', 'home_startup');
-```
-
-Attention : `--force` écrase le contenu publié. C'est voulu ici, puisque ce
-contenu est celui de l'ancien positionnement. Toute retouche faite dans la
-console après cette opération est à refaire.
+Sans `--force`, le fichier crée les sections manquantes et met à jour les
+libellés, sans toucher au contenu déjà publié.
 
 ### Récapitulatif avant `npm run deploy`
 

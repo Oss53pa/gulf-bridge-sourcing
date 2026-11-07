@@ -16,6 +16,12 @@ const PREVIEW_PATH: Record<string, string> = {
   etude: '/demander-une-etude', contact: '/contact', legal: '/mentions-legales',
 };
 
+/** Sections supprimées par la refonte du 7 novembre 2026, à retirer de la console. */
+const SECTIONS_SUPPRIMEES = [
+  'approche', 'services', 'secteurs',
+  'home_constat', 'home_audience', 'home_explore', 'home_positioning', 'home_startup',
+];
+
 const force = process.argv.includes('--force');
 const q = (s: string) => `'${s.replace(/'/g, "''")}'`;
 
@@ -24,10 +30,20 @@ const values = Object.entries(defaults).map(([key, data]) => {
   return `  (${q(SITE_ID)}, ${q(key)}, ${q(meta.label)}, ${meta.order}, ${q(PREVIEW_PATH[key] ?? '/')}, ${q(JSON.stringify(data))}::jsonb)`;
 });
 
-console.log(`insert into public.client_site_content (site_id, key, label, sort_order, preview_path, data)
+console.log(`begin;
+
+-- Sections supprimées par la refonte. Sans cette suppression, leur ancien
+-- contenu resterait dans la console et la construction refuserait de démarrer.
+delete from public.client_site_content
+ where site_id = ${q(SITE_ID)}
+   and key in (${SECTIONS_SUPPRIMEES.map(q).join(', ')});
+
+insert into public.client_site_content (site_id, key, label, sort_order, preview_path, data)
 values
 ${values.join(',\n')}
 on conflict (site_id, key) do update set
   label = excluded.label,
   sort_order = excluded.sort_order,
-  preview_path = excluded.preview_path${force ? ',\n  data = excluded.data,\n  updated_at = now()' : ''};`);
+  preview_path = excluded.preview_path${force ? ',\n  data = excluded.data,\n  updated_at = now()' : ''};
+
+commit;`);
