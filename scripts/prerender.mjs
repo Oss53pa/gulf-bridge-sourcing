@@ -38,6 +38,31 @@ async function loadEnv() {
 
 /* ----------------------------------------------- contenu de la console */
 
+/**
+ * Une clé recopiée depuis le tableau de bord sans avoir été révélée contient
+ * des points de masquage. Mise telle quelle dans un en-tête HTTP, elle produit
+ * une erreur illisible d'undici : on la refuse ici, avec la raison.
+ */
+function checkEnv(url, key) {
+  const masque = [...key].find(c => c.codePointAt(0) > 255);
+  if (masque) {
+    throw new Error(
+      `[prerender] VITE_ATLAS_SUPABASE_ANON_KEY contient le caractère « ${masque} », qui n'appartient pas à une clé.\n` +
+      "  La clé a sans doute été copiée en version masquée depuis le tableau de bord Supabase.\n" +
+      "  Révélez-la avant de la copier, puis recopiez-la dans .env."
+    );
+  }
+  if (/\s/.test(key)) {
+    throw new Error("[prerender] VITE_ATLAS_SUPABASE_ANON_KEY contient un espace ou un retour à la ligne. Recopiez-la sur une seule ligne.");
+  }
+  if (!/^ey[A-Za-z0-9._-]+$/.test(key) && !/^sb_[A-Za-z0-9_]+$/.test(key)) {
+    throw new Error("[prerender] VITE_ATLAS_SUPABASE_ANON_KEY n'a pas la forme d'une clé Supabase. Vérifiez .env.");
+  }
+  if (!/^https:\/\/[a-z0-9.-]+$/.test(url)) {
+    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_URL invalide : « ${url} ». Attendu : https://<projet>.supabase.co`);
+  }
+}
+
 async function fetchContent(env) {
   const url = env.VITE_ATLAS_SUPABASE_URL?.replace(/\/$/, '');
   const key = env.VITE_ATLAS_SUPABASE_ANON_KEY;
@@ -45,6 +70,7 @@ async function fetchContent(env) {
     console.warn('[prerender] console non configurée : le site est généré avec le contenu par défaut.');
     return {};
   }
+  checkEnv(url, key);
   const res = await fetch(`${url}/rest/v1/client_site_content?site_id=eq.${SITE_ID}&select=key,data`, {
     headers: { apikey: key, Authorization: `Bearer ${key}` },
   });
@@ -312,4 +338,9 @@ async function main() {
   console.log('[prerender] sitemap.xml, 404.html et _headers écrits.');
 }
 
-main().catch(err => { console.error(err); process.exit(1); });
+// Les erreurs de configuration sont destinées à être lues, pas déboguées :
+// on affiche le message seul, sauf si GBS_DEBUG est défini.
+main().catch(err => {
+  console.error(`\n${process.env.GBS_DEBUG ? err.stack : err.message || err}\n`);
+  process.exit(1);
+});
