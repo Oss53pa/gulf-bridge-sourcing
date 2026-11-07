@@ -49,7 +49,10 @@ export default function Specialty({ kind }: { kind: 'equipement' | 'industriel' 
 
       <section className="sec bg-navy" data-screen-label="Notre solution">
         <div className="wrap stack" style={{ gap: 'clamp(40px,5vw,64px)' }}>
-          <h2 className="h2" data-reveal="0">{s.solutionTitle}</h2>
+          <div className="stack" style={{ gap: 20, maxWidth: 880 }}>
+            <h2 className="h2" data-reveal="0">{s.solutionTitle}</h2>
+            {s.solutionIntro && <p className="solution-intro" data-reveal="80">{s.solutionIntro}</p>}
+          </div>
           <div className="solution-steps">
             {s.solutionSteps.map((x, i) => (
               <div className="solution-step" key={i} data-reveal={(i % 3) * 110}>

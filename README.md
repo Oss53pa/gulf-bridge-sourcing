@@ -2,6 +2,8 @@
 
 Site vitrine de Gulf Bridge Sourcing, bureau d'achat en Chine des exploitants
 et de leurs sous-traitants, pour la Côte d'Ivoire, le Gabon et le Cameroun.
+Le site s'adresse au visiteur comme sa centrale d'achat en Chine ; voir la règle
+de vocabulaire plus bas.
 
 Vite, React, TypeScript. Pages générées à l'avance en HTML. Hébergement
 Cloudflare Workers. Contenu géré depuis la console Atlas Studio (module
@@ -77,6 +79,28 @@ npm run seed > seed.sql
 Pas de tiret long, pas de point médian ni d'autre symbole décoratif, aucun nom
 d'usine ni de client, aucun chiffre d'activité non vérifiable, chaque chiffre de
 marché sourcé et daté, aucune mention d'outil de création.
+
+**Vocabulaire.** « Centrale d'achat » s'emploie dans le discours commercial
+seulement, et toujours formulé comme un service rendu, jamais comme un statut.
+Dans les mentions légales, les conditions et tout texte à valeur contractuelle :
+« bureau d'achat » ou « mandataire », car en achat accompagné le client achète
+en son nom propre. Le statut juridique exact reste à faire valider par un
+conseil dans les trois pays.
+
+### Contrôles automatiques à la construction
+
+`scripts/prerender.mjs` relit chaque page produite et **arrête la construction**
+si elle contient :
+
+- un tiret long, un tiret demi-cadratin, un point médian ou une puce décorative ;
+- la mention d'un outil de création ou de fabrication automatique ;
+- sur `/sites-industriels`, une marque visée par des sanctions ou des
+  restrictions (Hikvision, Dahua, Huawei, TP-Link, Growatt, Yutong) ;
+- sur `/mentions-legales` ou `/confidentialite`, « centrale d'achat » sans la
+  qualification « bureau d'achat » ou « mandataire ».
+
+Le contenu venant de la console, c'est le seul endroit où ces règles peuvent
+être vérifiées. Le message indique la page et le passage fautif.
 
 ### Marques
 

@@ -15,7 +15,7 @@ export interface PageMeta {
   noindex?: boolean;
 }
 
-const clip = (s: string, n = 300) => {
+const clip = (s: string, n = 165) => {
   const t = String(s ?? '').replace(/\*/g, '').replace(/\s+/g, ' ').trim();
   return t.length <= n ? t : `${t.slice(0, n - 1).trimEnd()}…`;
 };
@@ -25,68 +25,68 @@ export function pageMetas(c: SiteContent): Record<PageKey, PageMeta> {
   return {
     home: {
       path: ROUTES.home, crumb: 'Accueil',
-      title: "Votre bureau d'achat en Chine",
-      description: clip(c.home_hero.text),
+      title: "Votre centrale d'achat en Chine",
+      description: clip(c.seo.descHome),
       image: c.home_hero.image || img,
     },
     equipement: {
       path: ROUTES.equipement, crumb: 'Équiper votre site',
       title: 'Équiper votre site avant son ouverture',
-      description: clip(c.equipement.hero.text),
+      description: clip(c.seo.descEquipement),
       image: c.equipement.hero.image || img,
     },
     industriel: {
       path: ROUTES.industriel, crumb: 'Sites industriels',
       title: 'Approvisionner vos sites industriels',
-      description: clip(c.industriel.hero.text),
+      description: clip(c.seo.descIndustriel),
       image: c.industriel.hero.image || img,
     },
     autres: {
       path: ROUTES.autres, crumb: 'Autres secteurs',
       title: 'Autres secteurs, traités sur demande',
-      description: clip(c.autres.hero.text),
+      description: clip(c.seo.descAutres),
       image: c.autres.hero.image || img,
     },
     solutions: {
       path: ROUTES.solutions, crumb: 'Nos solutions',
       title: 'Nos solutions',
-      description: clip(c.solutions.hero.text),
+      description: clip(c.seo.descSolutions),
       image: c.solutions.hero.image || img,
     },
     methode: {
       path: ROUTES.methode, crumb: 'Méthode et garanties',
       title: 'Méthode et garanties',
-      description: clip(c.methode.hero.text),
+      description: clip(c.seo.descMethode),
       image: c.methode.hero.image || img,
     },
     about: {
       path: ROUTES.about, crumb: 'Qui nous sommes',
       title: 'Qui nous sommes',
-      description: clip(c.about.hero.text),
+      description: clip(c.seo.descAbout),
       image: c.about.hero.image || img,
     },
     etude: {
       path: ROUTES.etude, crumb: 'Demander une étude',
       title: 'Demander une étude',
-      description: clip(c.etude.hero.text),
+      description: clip(c.seo.descEtude),
       image: img,
     },
     contact: {
       path: ROUTES.contact, crumb: 'Contact',
       title: 'Contact et questions fréquentes',
-      description: clip(c.contact.hero.text),
+      description: clip(c.seo.descContact),
       image: img,
     },
     mentions: {
       path: ROUTES.mentions, crumb: c.legal.mentionsTitle,
       title: c.legal.mentionsTitle,
-      description: "Éditeur, hébergeur et marques citées du site Gulf Bridge Sourcing.",
+      description: clip(c.seo.descMentions),
       image: img, noindex: true,
     },
     privacy: {
       path: ROUTES.privacy, crumb: c.legal.privacyTitle,
       title: c.legal.privacyTitle,
-      description: 'Données collectées, finalité, durée de conservation et vos droits.',
+      description: clip(c.seo.descPrivacy),
       image: img, noindex: true,
     },
   };

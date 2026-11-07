@@ -54,7 +54,20 @@ export const defaults = {
     siteName: 'Gulf Bridge Sourcing',
     baseUrl: 'https://gulfbridgesourcing.com',
     defaultOgImage: '/images/hero-port.webp',
-    description: "Votre bureau d'achat en Chine. Nous équipons vos sites avant leur ouverture et approvisionnons vos sites industriels, direct usine, vérifié sur place.",
+    description: "Votre centrale d'achat en Chine, sans en avoir les coûts. Nous équipons vos sites avant leur ouverture et approvisionnons vos sites industriels, direct usine, vérifié sur place.",
+    // Une description propre à chaque page, de 120 à 160 caractères environ :
+    // au-delà, les moteurs de recherche la coupent au milieu d'une phrase.
+    descHome: "Votre centrale d'achat en Chine, sans en avoir les coûts. Nous équipons vos sites avant leur ouverture et approvisionnons vos sites industriels.",
+    descEquipement: "Mobilier, éclairage, climatisation : nous achetons en Chine et faisons arriver votre site complet, conforme et posé avant la date d'ouverture.",
+    descIndustriel: "EPI, consommables et pièces pour vos sites industriels : accord-cadre annuel, fournisseurs agréés, contrôle avant chaque expédition.",
+    descAutres: "BTP, agro-industrie et froid, éducation et santé, sport et loisirs : traités sur demande, livrés à Abidjan, San-Pédro, Owendo, Douala et Kribi.",
+    descSolutions: "Vérification de fournisseur, sourcing, achat pour votre compte, contrôle qualité, accord-cadre. Chaque mission est chiffrée et signée avant tout engagement.",
+    descMethode: "Sept étapes, deux verrous : aucun achat sans contrat signé, aucune expédition sans inspection validée. Six engagements, et le document reçu pour chacun.",
+    descAbout: "Une marque, deux sociétés : GBS Chine à Guangzhou pour les usines, GBS Côte d'Ivoire à Abidjan pour le contrat, la réception et l'après-vente.",
+    descEtude: "Décrivez votre projet en trois étapes courtes. Accusé de réception immédiat, premier contact sous 1 jour ouvré, par téléphone ou WhatsApp.",
+    descContact: "Deux bureaux, Guangzhou et Abidjan. Questions fréquentes sur la rémunération, les marques, la garantie du fabricant et les délais.",
+    descMentions: "Éditeur, nature de l'intervention, hébergeur et marques citées du site Gulf Bridge Sourcing.",
+    descPrivacy: "Données collectées, finalité, hébergement, durée de conservation et vos droits.",
   },
 
   intro: {
@@ -72,7 +85,7 @@ export const defaults = {
   home_hero: {
     eyebrow: 'Direct usine, vérifié sur place.',
     title: 'Ce que vous achetez en Chine doit arriver *conforme*, complet et à temps',
-    text: "Nous sommes votre bureau d'achat en Chine. Nous réglons dans les usines, sur place, les problèmes qui arriveraient sinon chez vous.",
+    text: "Votre centrale d'achat en Chine, sans en avoir les coûts. Ce que les grands groupes confient à leur centrale d'achat, nous le faisons pour vous : nous réglons en Chine, dans les usines, les problèmes qui arriveraient sinon chez vous.",
     ctaSecondary: 'Voir notre méthode',
     note: 'Premier contact sous 1 jour ouvré, gratuit. Proposition chiffrée avant tout engagement.',
     image: '/images/hero-port.webp',
@@ -170,6 +183,7 @@ export const defaults = {
     problemTitle: 'Votre problème',
     problemText: "Un centre commercial, un hôtel, une clinique ou un programme de logements s'équipent auprès de dizaines de fournisseurs, souvent sur mesure. Un seul lot en retard ou non conforme et la date d'ouverture recule. Chaque semaine perdue se paie en loyers, en salaires et en réputation.",
     solutionTitle: 'Notre solution',
+    solutionIntro: '',
     solutionSteps: [
       { title: "Planning d'achats à rebours", text: "Nous partons de votre date d'ouverture et remontons jusqu'à la commande, lot par lot, avec les délais de fabrication et de transport maritime réels." },
       { title: 'Mise en concurrence sur le coût global', text: 'Les fabricants sont comparés en prix et en coût sur la durée de vie : consommation, entretien, prix des pièces, déclarés par écrit.' },
@@ -211,6 +225,7 @@ export const defaults = {
     problemTitle: 'Votre problème',
     problemText: "Sur un site en activité, une rupture d'EPI ou de consommables arrête le travail. Les commandes au coup par coup coûtent cher, les délais sont imprévisibles, et le donneur d'ordre exige une traçabilité et une conformité éthique que des achats dispersés ne permettent pas de prouver.",
     solutionTitle: "Notre solution : l'accord-cadre",
+    solutionIntro: "L'accord-cadre, c'est le rôle de centrale de référencement que nous jouons pour vous : des fournisseurs agréés, des prix fixés pour l'année, un réassort prioritaire. Ce que les grands groupes ont en interne, sans la structure à financer.",
     solutionSteps: [
       { title: "Articles et prix fixés pour l'année", text: "Un catalogue négocié, des prix tenus sur la durée de l'accord, des quantités engagées ou prévisionnelles selon votre choix." },
       { title: 'Fournisseurs agréés', text: "Chaque fabricant du catalogue est vérifié sur place avant son entrée dans l'accord, puis suivi." },
@@ -282,7 +297,7 @@ export const defaults = {
       { key: 'controle', title: 'Contrôle qualité', problem: 'Vous découvrez les défauts au déballage, sur le chantier.', text: "Contrôle en production et inspection avant expédition. Les inspections sont prévues et chiffrées dans chaque proposition, à la journée.", deliverable: "Un rapport d'inspection avant le paiement du solde." },
       { key: 'consolidation', title: 'Consolidation et expédition', problem: 'Plusieurs fournisseurs, plusieurs envois, des frais et des risques multipliés.', text: "Regroupement en Chine, emballage contrôlé, documents export cohérents, suivi du fret jusqu'au port de destination.", deliverable: 'Un pack documentaire par expédition.' },
       { key: 'conformite', title: 'Conformité documentaire', problem: "Votre marchandise est bloquée au port pour un document manquant.", text: "Documents vérifiés entre eux, certificats du pays de destination, dossier de domiciliation, certificat d'inspection conforme à votre lettre de crédit.", deliverable: 'Un dossier conforme avant embarquement.' },
-      { key: 'accord', title: 'Accord-cadre annuel', problem: 'Vos sites sont en rupture et chaque commande repart de zéro.', text: "Catalogue et prix fixés pour l'année, fournisseurs agréés, réassort prioritaire, contrôle avant chaque expédition.", deliverable: "Un dossier qualité au format de votre donneur d'ordre." },
+      { key: 'accord', title: 'Accord-cadre annuel', problem: 'Vos sites sont en rupture et chaque commande repart de zéro.', text: "Le rôle de centrale de référencement, joué pour vous : catalogue et prix fixés pour l'année, fournisseurs agréés, réassort prioritaire, contrôle avant chaque expédition.", deliverable: "Un dossier qualité au format de votre donneur d'ordre." },
     ],
   },
 
@@ -401,6 +416,7 @@ export const defaults = {
     ctaLabel: 'Demander une étude',
     faqTitle: "Les questions à se poser avant d'acheter en Chine",
     faq: [
+      { q: 'Êtes-vous une centrale d\'achat ?', a: "Nous en jouons le rôle pour vous, nous n'en avons pas le statut. Une centrale d'achat achète en son nom et vous revend. Nous, nous achetons pour votre compte : la facture du fabricant est à votre nom, notre rémunération est facturée à part, et aucun fournisseur ne nous verse de rétrocession. Vous gardez la relation, le prix d'origine et le recours." },
       { q: 'Avec quelle société est-ce que je contracte ?', a: "Gulf Bridge Sourcing est une marque portée par deux sociétés. GBS Côte d'Ivoire, à Abidjan, porte le contrat et la facture de droit ivoirien. GBS Chine, à Guangzhou, exécute le travail en usine. Le contrat indique la société qui s'engage." },
       { q: 'Sous quel délai me répondez-vous ?', a: "Vous recevez un accusé de réception immédiat et automatique. Un premier contact par téléphone ou WhatsApp suit sous 1 jour ouvré. La proposition chiffrée arrive dans un délai qui vous est annoncé lors de ce premier contact, selon la taille du projet." },
       { q: 'Comment êtes-vous rémunérés ?', a: "Une commission sur vos achats, affichée à part de la facture du fabricant. Elle se paie en deux fois : 50 % à la signature du contrat fournisseur, 50 % à l'expédition après inspection validée. S'y ajoutent, selon la mission, un forfait au projet ou un forfait mensuel, un prix fixe pour la vérification d'un fournisseur et le contrôle qualité facturé à la journée. Tout est chiffré et signé avant la commande." },
@@ -419,7 +435,7 @@ export const defaults = {
 
   legal: {
     mentionsTitle: 'Mentions légales',
-    mentions: "Éditeur du site\nGBS Côte d'Ivoire, [forme juridique], au capital de [capital], immatriculée au RCCM sous le numéro [n° RCCM], compte contribuable [n°], siège social à Abidjan, [adresse].\n\nSociété en Chine\nGBS Chine, à Guangzhou. Sa raison sociale, son numéro de crédit social unifié et son adresse seront publiés dès son immatriculation.\n\nDirectrice de la publication\nPamela Atokouna.\n\nContact\ncontact@gulfbridgesourcing.com. Téléphones des deux bureaux en page Contact.\n\nHébergement\nCloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis.\n\nGestion du contenu\nConsole Atlas Studio.\n\nMarques citées\nLes marques citées sur ce site sont la propriété de leurs détenteurs. Gulf Bridge Sourcing n'est distributeur officiel d'aucune d'entre elles.",
+    mentions: "Éditeur du site\nGBS Côte d'Ivoire, [forme juridique], au capital de [capital], immatriculée au RCCM sous le numéro [n° RCCM], compte contribuable [n°], siège social à Abidjan, [adresse].\n\nSociété en Chine\nGBS Chine, à Guangzhou. Sa raison sociale, son numéro de crédit social unifié et son adresse seront publiés dès son immatriculation.\n\nNature de l'intervention\nGulf Bridge Sourcing intervient comme bureau d'achat et mandataire de ses clients. En achat accompagné, le client achète en son nom propre : la facture du fabricant est établie à son nom et notre rémunération est facturée séparément. Le terme « centrale d'achat » employé dans nos documents commerciaux décrit le service rendu, non un statut juridique.\n\nDirectrice de la publication\nPamela Atokouna.\n\nContact\ncontact@gulfbridgesourcing.com. Téléphones des deux bureaux en page Contact.\n\nHébergement\nCloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis.\n\nGestion du contenu\nConsole Atlas Studio.\n\nMarques citées\nLes marques citées sur ce site sont la propriété de leurs détenteurs. Gulf Bridge Sourcing n'est distributeur officiel d'aucune d'entre elles.",
     privacyTitle: 'Politique de confidentialité',
     privacy: "Responsable du traitement\nGBS Côte d'Ivoire, à Abidjan. Contact : contact@gulfbridgesourcing.com.\n\nCadre applicable\nLoi ivoirienne n° 2013-450 relative à la protection des données à caractère personnel, sous le contrôle de l'ARTCI. Pour les visiteurs du Gabon et du Cameroun, les lois nationales applicables s'ajoutent à ce cadre.\n\nDonnées collectées\nUniquement celles que vous saisissez dans le formulaire : nom et prénom, fonction, entreprise, e-mail professionnel, numéro WhatsApp, spécialité ou secteur, service souhaité, pays de livraison, produits et quantités, date de besoin, fournisseur déjà identifié, origine de votre visite, et les fichiers que vous joignez.\n\nFinalité\nRépondre à votre demande et préparer une proposition chiffrée. Vos données ne sont ni vendues ni cédées.\n\nHébergement et transfert\nLes données sont hébergées hors de Côte d'Ivoire. Le transfert est encadré et déclaré auprès de l'ARTCI lorsque la formalité est requise.\n\nDurée de conservation\nTrois ans après le dernier échange pour un prospect. Les durées légales applicables pour un client. Les fichiers joints à une demande restée sans suite sont supprimés après douze mois.\n\nVos droits\nAccès, rectification, suppression et opposition, par e-mail à contact@gulfbridgesourcing.com. Réponse sous trente jours.\n\nCookies\nCe site ne dépose aucun cookie publicitaire. La mesure d'audience est réalisée sans cookie et sans donnée personnelle, ce qui dispense de bandeau de consentement.",
   },
