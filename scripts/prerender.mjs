@@ -55,6 +55,35 @@ async function fetchContent(env) {
   return out;
 }
 
+
+/**
+ * Sections supprimées par la refonte du 7 novembre 2026. Si la console les
+ * contient encore, c'est qu'elle n'a pas été réalimentée : les sections
+ * conservées (legal, contact, about, seo, methode, home_hero...) y portent
+ * alors l'ancien contenu, qui écrase le nouveau champ par champ. Le site
+ * repartirait en ligne avec Vercel comme hébergeur, la commission 70 / 30,
+ * le délai de 48 heures et « une seule société ».
+ */
+const SECTIONS_SUPPRIMEES = [
+  'approche', 'services', 'secteurs',
+  'home_constat', 'home_audience', 'home_explore', 'home_positioning', 'home_startup',
+];
+
+function checkConsole(remote) {
+  const stale = SECTIONS_SUPPRIMEES.filter(k => k in remote);
+  if (!stale.length) return;
+  console.error('\n[prerender] la console contient encore le contenu de l\'ancien site.');
+  console.error(`  Sections obsolètes trouvées : ${stale.join(', ')}`);
+  console.error('  Les sections conservées portent donc aussi l\'ancien texte et écraseraient');
+  console.error('  les corrections du cahier des charges (hébergeur, commission, délai, sociétés).');
+  console.error('\n  Réalimentez la console avant de construire :');
+  console.error('    node scripts/seed-content.ts --force > seed.sql');
+  console.error('    puis appliquez seed.sql, et supprimez les lignes obsolètes :');
+  console.error(`    delete from public.client_site_content where site_id = '${SITE_ID}'`);
+  console.error(`      and key in (${stale.map(k => `'${k}'`).join(', ')});\n`);
+  process.exit(1);
+}
+
 /* ------------------------------------------------------------- écriture */
 
 function buildPage(template, { head, html }, snapshotTag) {
@@ -199,6 +228,17 @@ function checkWording(pages) {
       }
     }
 
+    // Le délai de premier contact est de 1 jour ouvré depuis la décision 2.
+    if (/48\s*(h|heures)\s*ouvr/i.test(text)) {
+      add(page.path, "délai de 48 heures ouvrées, remplacé par 1 jour ouvré (décision 2)");
+    }
+
+    // Les mentions légales citent l'hébergeur réel, et plus Vercel.
+    if (/\bVercel\b/i.test(text)) add(page.path, "Vercel cité alors que le site est hébergé par Cloudflare");
+    if (page.path === '/mentions-legales' && !/H[ée]bergement/i.test(text)) {
+      add(page.path, "rubrique « Hébergement » absente des mentions légales");
+    }
+
     // Aucune marque sous sanctions ou restrictions sur la page des sites industriels.
     if (page.path === '/sites-industriels') {
       for (const m of MARQUES_RESTREINTES) {
@@ -228,6 +268,7 @@ async function main() {
   if (!template.includes('<!--gbs-app-->')) throw new Error('[prerender] marqueur <!--gbs-app--> absent de index.html.');
 
   const remote = await fetchContent(env);
+  checkConsole(remote);
   const { renderAll, renderNotFound } = await import(SSR);
   const pages = renderAll(remote);
 

@@ -45,6 +45,47 @@ La construction enchaîne trois étapes :
 npm run deploy
 ```
 
+## Avant la première mise en ligne : réalimenter la console
+
+**La console contient encore le contenu de l'ancien site.** Onze sections ont
+gardé la même clé (`settings`, `seo`, `legal`, `contact`, `about`, `methode`,
+`home_hero`, `report`, `cta`, `intro`, `home_founder`) et la fusion se fait
+champ par champ : l'ancien texte publié écraserait le nouveau. Le site
+repartirait en ligne avec Vercel comme hébergeur, la commission 70 / 30, le
+délai de 48 heures ouvrées et « une seule société », c'est-à-dire exactement ce
+que la refonte corrige.
+
+La construction s'arrête d'elle-même si elle détecte une section obsolète, mais
+il faut agir avant :
+
+```bash
+node scripts/seed-content.ts --force > seed.sql
+```
+
+Appliquer `seed.sql` sur le projet Atlas Studio, puis supprimer les sections
+que la refonte a retirées :
+
+```sql
+delete from public.client_site_content
+where site_id = 'gulf-bridge-sourcing'
+  and key in ('approche', 'services', 'secteurs', 'home_constat',
+              'home_audience', 'home_explore', 'home_positioning', 'home_startup');
+```
+
+Attention : `--force` écrase le contenu publié. C'est voulu ici, puisque ce
+contenu est celui de l'ancien positionnement. Toute retouche faite dans la
+console après cette opération est à refaire.
+
+### Récapitulatif avant `npm run deploy`
+
+1. `.env` renseigné avec `VITE_ATLAS_SUPABASE_URL` et
+   `VITE_ATLAS_SUPABASE_ANON_KEY`. Sans la clé, le contenu de la console n'est
+   pas relu **et** la politique de sécurité du contenu bloquera l'envoi du
+   formulaire : la construction le signale.
+2. Console réalimentée et sections obsolètes supprimées (ci-dessus).
+3. `npx wrangler login`, ou `CLOUDFLARE_API_TOKEN` dans l'environnement.
+4. `npm run deploy`.
+
 ### Point important : publier depuis la console ne suffit plus
 
 Le cahier des charges impose des pages lisibles sans JavaScript (section 10).
