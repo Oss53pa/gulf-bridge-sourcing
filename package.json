@@ -5,14 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build:client": "vite build",
+    "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist-ssr",
+    "build": "npm run build:client && npm run build:ssr && node scripts/prerender.mjs",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.app.json",
     "preview": "vite preview",
-    "deploy": "vite build && wrangler deploy"
+    "seed": "node scripts/seed-content.ts",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
-    "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"

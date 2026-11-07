@@ -1,44 +1,143 @@
-# Gulf Bridge Sourcing — site web
+# Gulf Bridge Sourcing, site web
 
-Site vitrine de Gulf Bridge Sourcing (agent d'achat à Guangzhou pour la Côte d'Ivoire, le Gabon et le Cameroun).
-Vite + React + TypeScript, géré depuis la console Atlas Studio (module **Sites clients**, `/admin/client-sites`).
+Site vitrine de Gulf Bridge Sourcing, bureau d'achat en Chine des exploitants
+et de leurs sous-traitants, pour la Côte d'Ivoire, le Gabon et le Cameroun.
+
+Vite, React, TypeScript. Pages générées à l'avance en HTML. Hébergement
+Cloudflare Workers. Contenu géré depuis la console Atlas Studio (module
+**Sites clients**, `/admin/client-sites`).
+
+Refonte conforme au cahier des charges du 7 novembre 2026, lot A.
 
 ## Démarrer
 
 ```bash
 npm install
-cp .env.example .env   # renseigner VITE_ATLAS_SUPABASE_ANON_KEY (clé publique)
-npm run dev            # http://localhost:5180
 ```
+
+```bash
+cp .env.example .env
+```
+
+```bash
+npm run dev
+```
+
+Le site de développement écoute sur `http://localhost:5180`. En développement,
+le contenu est relu en direct depuis la console.
+
+## Construire et déployer
+
+```bash
+npm run build
+```
+
+La construction enchaîne trois étapes :
+
+1. `build:client`, les fichiers du navigateur ;
+2. `build:ssr`, le rendu serveur ;
+3. `scripts/prerender.mjs`, qui relit le contenu de la console, écrit une page
+   HTML complète par adresse, puis `sitemap.xml`, `404.html` et `_headers`.
+
+```bash
+npm run deploy
+```
+
+### Point important : publier depuis la console ne suffit plus
+
+Le cahier des charges impose des pages lisibles sans JavaScript (section 10).
+Le contenu de la console est donc **figé dans le HTML au moment de la
+construction**, et le site ne le relit pas dans le navigateur : le robot et le
+visiteur voient exactement le même texte, sans scintillement.
+
+Conséquence : **une modification publiée dans la console n'apparaît en ligne
+qu'après une nouvelle construction.** Il faut donc brancher un Deploy Hook
+Cloudflare sur la publication de la console. Tant que ce n'est pas fait, la mise
+en ligne d'une modification de contenu se fait avec `npm run deploy`.
+
+L'aperçu en direct de la console continue de fonctionner normalement : en mode
+aperçu, le site relit le contenu et écoute les brouillons.
 
 ## Contenu
 
-- Valeurs par défaut : `src/content/defaults.ts` (une clé = une section éditable dans la console).
-- Le site lit `public.client_site_content` (site_id `gulf-bridge-sourcing`) et fusionne section par section.
+- Valeurs par défaut : `src/content/defaults.ts`. Une clé de premier niveau =
+  une section éditable dans la console.
 - `*mot*` dans un texte = italique doré.
-- Nouvelle section ou nouveau champ : l'ajouter dans `defaults.ts`, puis créer la ligne en base :
+- Nouvelle section ou nouveau champ : l'ajouter dans `defaults.ts`, puis créer
+  la ligne en base :
 
 ```bash
-node scripts/seed-content.ts > seed.sql   # --force pour écraser le contenu publié
+npm run seed > seed.sql
 ```
 
-## Formulaire de contact
+`node scripts/seed-content.ts --force` écrase aussi le contenu déjà publié.
 
-Envoi via la RPC `submit_client_site_lead` (validation + limitation de débit). Les demandes apparaissent dans la
-console (onglet Demandes) et déclenchent un e-mail à `client_sites.notify_email`.
+### Règles de rédaction (cahier des charges, section 8)
 
-## Aperçu en direct
+Pas de tiret long, pas de point médian ni d'autre symbole décoratif, aucun nom
+d'usine ni de client, aucun chiffre d'activité non vérifiable, chaque chiffre de
+marché sourcé et daté, aucune mention d'outil de création.
 
-La console affiche le site dans un iframe avec `?preview=1` et lui transmet les brouillons par `postMessage`.
-Origines autorisées : `VITE_CONSOLE_ORIGINS`.
+### Marques
 
-## Déploiement
+Les marques sont citées en texte seulement, jamais en logo. Toute page qui en
+cite affiche l'avertissement `BRAND_NOTICE`. Aucune marque visée par des
+sanctions ou des restrictions américaines ou européennes ne figure sur la page
+Sites industriels. Liste à revoir tous les six mois.
 
-Cloudflare Workers (fichiers statiques) : `wrangler.jsonc` (fallback SPA) et `public/_headers` (cache, `frame-ancestors` pour la console).
+## Formulaire « Demander une étude »
 
-```bash
-npx wrangler login   # une fois
-npm run deploy       # build avec .env puis déploiement
-```
+Trois étapes, champs structurés, pièces jointes. Envoi par la RPC
+`submit_client_site_lead`.
 
-Les variables `VITE_*` sont lues au moment du build : elles doivent être présentes dans `.env` (ou dans les variables de build Cloudflare si le déploiement est relié à GitHub).
+**Limite connue** : cette RPC accepte huit champs texte et aucun fichier. Les
+champs structurés sont donc écrits dans un bloc lisible du message, et le champ
+« pièces jointes » reste inactif tant que `VITE_LEAD_UPLOAD_URL` n'est pas
+renseigné. Le formulaire le dit au visiteur. La migration et la fonction d'envoi
+qui lèvent cette limite sont dans `supabase/`, **non appliquées** : voir
+`supabase/README.md`.
+
+Protections en place : champ piège invisible, refus d'un envoi en moins de
+quatre secondes, limitation de débit côté base, contrôle des formats de fichier
+côté navigateur. Le contrôle qui protège réellement les fichiers (type vérifié
+sur les octets, nom régénéré, débit) est dans la fonction d'envoi.
+
+## Référencement
+
+- Un titre, une description et une image de partage propres à chaque page
+  (`src/seo.ts`), écrits dans le HTML par le pré-rendu.
+- `sitemap.xml` et `robots.txt` générés.
+- Données structurées : `Organization`, `LocalBusiness` pour chaque bureau dont
+  l'adresse est renseignée, `FAQPage` sur la page Contact.
+- Anciennes adresses redirigées en 301 par `public/_redirects`.
+
+## Mesure d'audience
+
+Sans cookie et sans donnée personnelle, donc sans bandeau de consentement.
+Renseigner `VITE_CF_ANALYTICS_TOKEN` pour la mesure de l'hébergeur. Les
+événements de la section 14 passent par `VITE_ANALYTICS_ENDPOINT` ; vide, rien
+n'est envoyé.
+
+## Icônes
+
+La police d'icônes est réduite aux seules icônes du site, listées dans le
+paramètre `icon_names` de `index.html` : 13 Ko au lieu de 1,3 Mo. **Une icône
+ajoutée depuis la console doit être ajoutée à cette liste**, sinon elle ne
+s'affiche pas. La construction le signale.
+
+## Images
+
+Format WebP, dimensions ajustées à l'affichage. Le logo est servi en WebP ; le
+PNG ne sert plus qu'à l'icône d'onglet.
+
+## Ce qui reste à faire
+
+| Sujet | État |
+|---|---|
+| Neuf solutions, douze familles de produits, marques | Structure en place, contenu à reprendre de la plaquette commerciale |
+| Pièces jointes du formulaire | Migration et fonction écrites, non appliquées (`supabase/`) |
+| Demandes vers le module M1 | Lot C, après mise en service de l'application de gestion |
+| Domaine, SPF, DKIM, DMARC | Hors dépôt |
+| Deploy Hook sur publication de la console | À brancher |
+| Version anglaise, guides, pages pays | Lot B |
+| Page fournisseur en mandarin | Lot C |

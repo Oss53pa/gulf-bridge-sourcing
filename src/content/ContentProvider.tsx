@@ -2,11 +2,10 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { defaults, type SiteContent } from './defaults';
 import { fetchContent, type RemoteContent } from '../lib/atlas';
 
-const CACHE_KEY = 'gbs-content-v1';
 const ContentContext = createContext<SiteContent>(defaults);
 
 /** Fusion section par section : une valeur distante remplace la valeur par défaut. */
-function merge(remote: RemoteContent): SiteContent {
+export function merge(remote: RemoteContent): SiteContent {
   const out: Record<string, unknown> = {};
   for (const [key, base] of Object.entries(defaults)) {
     const r = remote[key];
@@ -18,10 +17,6 @@ function merge(remote: RemoteContent): SiteContent {
   return out as SiteContent;
 }
 
-function readCache(): RemoteContent {
-  try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '{}'); } catch { return {}; }
-}
-
 /** Origines autorisées à envoyer un brouillon (aperçu en direct de la console). */
 const PREVIEW_ORIGINS = ((import.meta.env.VITE_CONSOLE_ORIGINS as string | undefined) ?? 'https://atlas-studio.org,http://localhost:5173')
   .split(',').map(s => s.trim()).filter(Boolean);
@@ -30,20 +25,37 @@ export const isPreview = typeof window !== 'undefined'
   && window.parent !== window
   && new URLSearchParams(window.location.search).has('preview');
 
-export function ContentProvider({ children }: { children: ReactNode }) {
-  const [remote, setRemote] = useState<RemoteContent>(readCache);
+/**
+ * Instantané du contenu figé dans le HTML au moment de la construction
+ * (voir scripts/prerender.mjs). Le visiteur et le robot voient le même texte :
+ * aucun nouvel appel réseau n'est fait en production, donc aucun scintillement.
+ * Une publication depuis la console ne s'affiche qu'après une reconstruction.
+ */
+declare global {
+  interface Window { __GBS_CONTENT__?: RemoteContent }
+}
+
+function snapshot(): RemoteContent {
+  if (typeof window === 'undefined') return {};
+  const s = window.__GBS_CONTENT__;
+  return s && typeof s === 'object' ? s : {};
+}
+
+export function ContentProvider({ children, initial }: { children: ReactNode; initial?: RemoteContent }) {
+  const [remote, setRemote] = useState<RemoteContent>(() => initial ?? snapshot());
   const [drafts, setDrafts] = useState<RemoteContent>({});
 
+  // En aperçu console et en développement seulement : le contenu est relu en direct.
+  const live = isPreview || import.meta.env.DEV;
+
   useEffect(() => {
+    if (!live) return;
     const ctrl = new AbortController();
     fetchContent(ctrl.signal)
-      .then(r => {
-        setRemote(r);
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify(r)); } catch { /* stockage indisponible */ }
-      })
+      .then(setRemote)
       .catch(err => { if (err?.name !== 'AbortError') console.warn('[contenu]', err); });
     return () => ctrl.abort();
-  }, []);
+  }, [live]);
 
   useEffect(() => {
     if (!isPreview) return;

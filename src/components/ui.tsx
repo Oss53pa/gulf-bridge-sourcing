@@ -5,16 +5,35 @@ import type { PageHero as PageHeroData } from '../content/defaults';
 
 export const ROUTES = {
   home: '/',
-  approche: '/notre-approche',
-  services: '/services',
+  equipement: '/equiper-votre-site',
+  industriel: '/sites-industriels',
+  autres: '/autres-secteurs',
+  solutions: '/solutions',
   methode: '/methode',
-  secteurs: '/secteurs',
   about: '/qui-sommes-nous',
+  etude: '/demander-une-etude',
   contact: '/contact',
   mentions: '/mentions-legales',
   privacy: '/confidentialite',
 } as const;
 export type PageKey = keyof typeof ROUTES;
+
+/** Durée de l'animation d'ouverture. Elle doit rester sous la seconde. */
+export const INTRO_MS = 900;
+
+/** Toutes les adresses du site, dans l'ordre du plan du site. */
+export const ALL_ROUTES: PageKey[] = [
+  'home', 'equipement', 'industriel', 'autres', 'solutions',
+  'methode', 'about', 'etude', 'contact', 'mentions', 'privacy',
+];
+
+/** Anciennes adresses, redirigées de façon permanente (301). */
+export const LEGACY_REDIRECTS: Record<string, string> = {
+  '/approche': ROUTES.methode,
+  '/notre-approche': ROUTES.methode,
+  '/services': ROUTES.solutions,
+  '/secteurs': ROUTES.autres,
+};
 
 export function Icon({ name, className = '', size }: { name: string; className?: string; size?: number }) {
   return <span aria-hidden="true" className={`ms ${className}`} style={size ? { fontSize: size } : undefined}>{name}</span>;
@@ -39,7 +58,7 @@ export function Eyebrow({ children, delay = 0 }: { children: ReactNode; delay?: 
 
 export function PageHero({ hero, crumb }: { hero: PageHeroData; crumb: string }) {
   return (
-    <section className="page-hero" data-screen-label={crumb}>
+    <section className={`page-hero${hero.image ? '' : ' page-hero-plain'}`} data-screen-label={crumb}>
       {hero.image && <div className="cover kb"><img src={hero.image} alt="" /></div>}
       <div className="shade" />
       <div className="page-hero-inner">
@@ -54,16 +73,31 @@ export function PageHero({ hero, crumb }: { hero: PageHeroData; crumb: string })
   );
 }
 
-export function whatsappHref(raw: string) {
+/** Lien WhatsApp, avec un message indiquant la page d'origine. */
+export function whatsappHref(raw: string, context?: string) {
   const digits = (raw || '').replace(/[^0-9]/g, '');
-  return digits ? `https://wa.me/${digits}` : '';
+  if (!digits) return '';
+  const text = context ? `?text=${encodeURIComponent(`Bonjour, je vous écris depuis la page ${context} du site Gulf Bridge Sourcing.`)}` : '';
+  return `https://wa.me/${digits}${text}`;
 }
 
-export function CtaBand() {
+/**
+ * Lien vers le formulaire guidé, avec la spécialité ou le service préremplis.
+ * Les valeurs passent par l'adresse pour survivre au pré-rendu et au partage.
+ */
+export function etudeHref(params: { specialty?: string; service?: string } = {}) {
+  const q = new URLSearchParams();
+  if (params.specialty) q.set('specialite', params.specialty);
+  if (params.service) q.set('service', params.service);
+  const s = q.toString();
+  return s ? `${ROUTES.etude}?${s}` : ROUTES.etude;
+}
+
+export function CtaBand({ context }: { context?: string }) {
   const { cta, settings } = useContent();
-  const wa = whatsappHref(settings.whatsapp);
+  const wa = whatsappHref(settings.whatsapp, context);
   return (
-    <section className="cta" data-screen-label="CTA">
+    <section className="cta" data-screen-label="Appel final">
       <Icon name="directions_boat" className="cta-boat" />
       <div className="inner">
         <div className="stack" style={{ gap: 14, maxWidth: 760 }}>
@@ -71,7 +105,7 @@ export function CtaBand() {
           <span className="text" data-reveal="120">{cta.text}</span>
         </div>
         <div data-reveal="200" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <Link to={ROUTES.contact} className="btn btn-navy">{settings.ctaLabel}<Icon name="arrow_forward" /></Link>
+          <Link to={etudeHref()} className="btn btn-navy">{settings.ctaLabel}<Icon name="arrow_forward" /></Link>
           {wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-outline-navy"><Icon name="chat" size={20} />WhatsApp</a>}
         </div>
       </div>
@@ -88,4 +122,9 @@ export function ReportPages() {
       ))}
     </div>
   );
+}
+
+/** Avertissement obligatoire sur toute page citant des marques. */
+export function BrandNotice({ text }: { text: string }) {
+  return <p className="brand-notice">{text}</p>;
 }

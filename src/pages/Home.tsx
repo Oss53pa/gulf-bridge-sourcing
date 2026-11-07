@@ -1,17 +1,25 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { useContent } from '../content/ContentProvider';
-import { CtaBand, Icon, ReportPages, Rich, ROUTES, segments, pad, type PageKey } from '../components/ui';
+import { CtaBand, Icon, ReportPages, Rich, ROUTES, etudeHref, segments, pad } from '../components/ui';
+import { track } from '../lib/analytics';
 
 function HeroTitle({ text }: { text: string }) {
-  // Chaque mot apparaît à son tour, après l'intro.
-  const words = segments(text).flatMap(s => s.t.split(/\s+/).filter(Boolean).map(w => ({ w, em: s.em })));
+  // Chaque mot apparaît à son tour, après l'animation d'ouverture.
+  const words: { w: string; em: boolean }[] = [];
+  for (const seg of segments(text)) {
+    for (const w of seg.t.split(/\s+/).filter(Boolean)) {
+      // La ponctuation qui suit un accent reste collée au mot précédent.
+      if (/^[,.;:!?)\u00BB\u2026]+$/.test(w) && words.length) words[words.length - 1].w += w;
+      else words.push({ w, em: seg.em });
+    }
+  }
   return (
     <h1>
       {words.map((x, i) => (
         <Fragment key={i}>
           {i > 0 && ' '}
-          <span data-reveal={1750 + i * 60}>{x.em ? <em className="hl">{x.w}</em> : x.w}</span>
+          <span data-reveal={950 + i * 30}>{x.em ? <em className="hl">{x.w}</em> : x.w}</span>
         </Fragment>
       ))}
     </h1>
@@ -22,20 +30,23 @@ export default function Home() {
   const c = useContent();
   const h = c.home_hero;
   const ms = h.milestones ?? [];
+  const specPaths: Record<string, string> = { equipement: ROUTES.equipement, industriel: ROUTES.industriel };
+
   return (
     <>
-      <section className="home-hero" data-screen-label="Hero">
+      {/* 1. En-tête */}
+      <section className="home-hero" data-screen-label="En-tête">
         <div className="cover kb-hero"><img src={h.image} alt="" /></div>
         <div className="shade" />
         <div className="home-hero-inner">
           <span className="eyebrow" data-reveal="0">{h.eyebrow}</span>
           <HeroTitle text={h.title} />
-          <p className="home-hero-text" data-reveal="2450">{h.text}</p>
-          <div data-reveal="2650" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Link to={ROUTES.contact} className="btn btn-gold">{c.settings.ctaLabel}<Icon name="arrow_forward" size={20} /></Link>
+          <p className="home-hero-text" data-reveal="1180">{h.text}</p>
+          <div data-reveal="1260" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Link to={etudeHref()} className="btn btn-gold">{c.settings.ctaLabel}<Icon name="arrow_forward" size={20} /></Link>
             <Link to={ROUTES.methode} className="btn btn-ghost">{h.ctaSecondary}</Link>
           </div>
-          <span className="home-hero-note" data-reveal="2750">{h.note}</span>
+          <span className="home-hero-note" data-reveal="1320">{h.note}</span>
         </div>
         <div className="scroll-hint" aria-hidden="true"><span>Défiler</span><Icon name="south" className="float" /></div>
         <div className="route">
@@ -70,43 +81,82 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="sec bg-white on-light" data-screen-label="Constat">
+      {/* 2. Les six problèmes */}
+      <section className="sec bg-white on-light" data-screen-label="Les six problèmes">
         <div className="wrap stack" style={{ gap: 'clamp(48px,6vw,80px)' }}>
-          <div className="head-grid" style={{ gap: '32px 80px' }}>
-            <h2 className="h2" data-reveal="80"><Rich text={c.home_constat.title} /></h2>
-            <div className="stack" style={{ gap: 12 }}>
-              <p className="lead">{c.home_constat.text}</p>
-              {c.home_constat.footnotes.length > 0 && (
-                <span className="footnotes">{c.home_constat.footnotes.map((f, i) => <span key={i}>{f}</span>)}</span>
-              )}
-            </div>
+          <div className="stack" style={{ gap: 20, maxWidth: 960 }}>
+            <span className="eyebrow" data-reveal="0">{c.home_problems.eyebrow}</span>
+            <h2 className="h2" data-reveal="80"><Rich text={c.home_problems.title} /></h2>
           </div>
-          <div className="risks">
-            {c.home_constat.risks.map((r, i) => (
-              <div className="risk" key={i} data-reveal={(i % 3) * 110}>
+          <div className="problems">
+            {c.home_problems.items.map((p, i) => (
+              <div className="problem" key={i} data-reveal={(i % 3) * 110}>
                 <span className="num">{pad(i)}</span>
-                <h3>{r.title}</h3>
-                <p>{r.text}</p>
+                <blockquote>{p.problem}</blockquote>
+                <p><span className="label">Ce que nous faisons</span>{p.answer}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="audience" data-screen-label="Pour qui">
-        {c.home_audience.items.map((a, i) => (
-          <div className="audience-card" key={i}>
-            <div className={`cover${i === 0 ? ' kb' : ''}`}><img src={a.image} alt="" loading="lazy" /></div>
+      {/* 3. Les deux spécialités */}
+      <section className="specialties" data-screen-label="Les deux spécialités">
+        {c.home_specialties.items.map((s, i) => (
+          <article className="specialty-card" key={i}>
+            <div className={`cover${i === 0 ? ' kb' : ''}`}><img src={s.image} alt="" loading="lazy" /></div>
             <div className="shade" />
             <div className="body" data-reveal="100">
-              <h3>{a.title}</h3>
-              <p>{a.text}</p>
+              <span className="label">{s.geo}</span>
+              <h3>{s.title}</h3>
+              <p>{s.clients}</p>
+              <p className="offer"><Icon name="sell" size={18} />{s.offer}</p>
+              <Link to={specPaths[s.page] ?? ROUTES.home} className="link-under on-dark">{s.link}<Icon name="arrow_forward" /></Link>
             </div>
-          </div>
+          </article>
         ))}
       </section>
 
-      <section className="founder-band bg-white on-light" data-screen-label="Fondatrice accueil">
+      {/* 4. Les deux verrous */}
+      <section className="sec-sm bg-navy" data-screen-label="Les deux verrous">
+        <div className="wrap head-grid">
+          <h2 className="h2" data-reveal="0"><Rich text={c.home_locks.title} /></h2>
+          <div className="locks">
+            {c.home_locks.locks.map((l, i) => (
+              <div className="lock" key={i} data-reveal={i * 110}>
+                <span className="label">Verrou {i + 1}</span><span>{l}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. La preuve */}
+      <section className="sec bg-white on-light" data-screen-label="Le rapport d'inspection">
+        <div className="wrap report-block">
+          <div className="stack" style={{ gap: 14 }} data-reveal="0">
+            <div className="report-stage"><ReportPages /></div>
+            <div className="report-captions">
+              {c.report.captions.slice(0, 3).map((cap, i) => <span key={i}><i>{pad(i)}</i>{cap}</span>)}
+            </div>
+          </div>
+          <div className="stack" style={{ gap: 24 }}>
+            <span className="eyebrow" data-reveal="0">{c.report.eyebrow}</span>
+            <h2 className="h2" style={{ fontSize: 'clamp(32px,3.6vw,52px)' }} data-reveal="80"><Rich text={c.report.title} /></h2>
+            <p className="lead">{c.report.text}</p>
+            <Link
+              to={etudeHref({ service: 'Modèle de rapport' })}
+              onClick={() => track('report_request')}
+              className="btn btn-navy" style={{ alignSelf: 'flex-start' }}
+            >
+              <Icon name="mail" size={22} />{c.report.link}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. La fondatrice */}
+      <section className="founder-band bg-sand on-light" data-screen-label="Citation de la fondatrice">
         <div className="inner" data-reveal="0">
           <div className="quote">
             <p><Rich text={c.home_founder.quote} /></p>
@@ -116,63 +166,33 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="sec-sm bg-sand" data-screen-label="Jeune entreprise">
-        <div className="wrap split">
-          <div className="panel-navy" data-reveal="0">
-            <span className="eyebrow">{c.home_startup.eyebrow}</span>
-            <h2><Rich text={c.home_startup.title} /></h2>
-            <div className="stack">
-              {c.home_startup.points.map((p, i) => (
-                <div className="point" key={i}><span className="serif">{p.title}</span><span>{p.text}</span></div>
-              ))}
-            </div>
+      {/* 7. Un premier pas sans risque */}
+      <section className="sec-sm bg-navy" data-screen-label="Premier pas">
+        <div className="wrap split-2">
+          <div className="stack" style={{ gap: 20 }}>
+            <span className="eyebrow" data-reveal="0">{c.home_firststep.eyebrow}</span>
+            <h2 className="h2" data-reveal="80"><Rich text={c.home_firststep.title} /></h2>
           </div>
-          <div className="panel-white on-light" data-reveal="120">
-            <ReportPages />
-            <div className="stack" style={{ gap: 6 }}>
-              <span className="label">{c.home_startup.reportEyebrow}</span>
-              <span className="serif" style={{ fontSize: 26, lineHeight: 1.15 }}>{c.home_startup.reportTitle}</span>
-              <span style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--ink-2)' }}>{c.home_startup.reportText}</span>
-            </div>
-            <Link to={ROUTES.contact} state={{ service: 'Modèle de rapport' }} className="link-under" style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
-              {c.home_startup.reportLink}<Icon name="arrow_forward" />
+          <div className="stack" style={{ gap: 24 }} data-reveal="120">
+            <p>{c.home_firststep.text}</p>
+            <p className="deduction"><Icon name="percent" size={20} />{c.home_firststep.deduction}</p>
+            <Link to={etudeHref({ service: 'Vérification de fournisseur' })} className="btn btn-gold" style={{ alignSelf: 'flex-start' }}>
+              {c.home_firststep.cta}<Icon name="arrow_forward" size={20} />
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="positioning" data-screen-label="Positionnement">
-        <div className="cover kb"><img src={c.home_positioning.image} alt="" loading="lazy" /></div>
-        <div className="shade" />
-        <div className="inner">
-          <span className="bar" />
-          <p className="big" data-reveal="100"><Rich text={c.home_positioning.title} /></p>
-          <p data-reveal="200">{c.home_positioning.text}</p>
+      {/* 8. Autres secteurs */}
+      <section className="others-line bg-white on-light" data-screen-label="Autres secteurs">
+        <div className="wrap inner">
+          <p>{c.home_others.text}</p>
+          <Link to={ROUTES.autres} className="link-under">{c.home_others.link}<Icon name="arrow_forward" /></Link>
         </div>
       </section>
 
-      <section className="sec-sm bg-white on-light" data-screen-label="Explorer">
-        <div className="wrap stack" style={{ gap: 40 }}>
-          <div className="stack" style={{ gap: 20 }}>
-            <span className="eyebrow" data-reveal="0">{c.home_explore.eyebrow}</span>
-            <h2 className="h2" data-reveal="80">{c.home_explore.title}</h2>
-          </div>
-          <div className="explore">
-            {c.home_explore.cards.map((card, i) => (
-              <Link key={i} to={ROUTES[(card.page as PageKey)] ?? ROUTES.home} className="explore-card" data-reveal={i * 100}>
-                <Icon name={card.icon} />
-                <span className="stack" style={{ gap: 10 }}>
-                  <span className="serif">{card.title}</span>
-                  <span className="sub">{card.text}</span>
-                  <span className="go">Découvrir<Icon name="arrow_forward" /></span>
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <CtaBand />
+      {/* 9. Appel final */}
+      <CtaBand context="accueil" />
     </>
   );
 }

@@ -11,8 +11,9 @@
 import { SECTION_META, SITE_ID, defaults } from '../src/content/defaults.ts';
 
 const PREVIEW_PATH: Record<string, string> = {
-  approche: '/notre-approche', services: '/services', methode: '/methode', secteurs: '/secteurs',
-  about: '/qui-sommes-nous', contact: '/contact', legal: '/mentions-legales',
+  equipement: '/equiper-votre-site', industriel: '/sites-industriels', autres: '/autres-secteurs',
+  solutions: '/solutions', methode: '/methode', about: '/qui-sommes-nous',
+  etude: '/demander-une-etude', contact: '/contact', legal: '/mentions-legales',
 };
 
 const force = process.argv.includes('--force');

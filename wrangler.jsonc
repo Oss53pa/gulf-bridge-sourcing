@@ -3,12 +3,15 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "gulf-bridge-sourcing",
   "compatibility_date": "2026-10-01",
-  // Adresse *.workers.dev active tant qu'aucun domaine n'est rattaché ; pas d'URL d'aperçu par version.
+  // Adresse *.workers.dev active tant qu'aucun domaine n'est rattaché.
+  // À désactiver après la bascule sur gulfbridgesourcing.com.
   "workers_dev": true,
   "preview_urls": false,
   "assets": {
     "directory": "./dist",
-    // Routes de l'application (React Router) : toute URL inconnue renvoie index.html.
-    "not_found_handling": "single-page-application"
+    // Chaque page du site est un fichier HTML généré à l'avance : une adresse
+    // inconnue doit répondre 404, et non renvoyer l'accueil.
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
   }
 }
