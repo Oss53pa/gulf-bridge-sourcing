@@ -1,91 +1,70 @@
-import { Fragment, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { useContent } from '../content/ContentProvider';
-import type { PageHero as PageHeroData } from '../content/defaults';
+import { Fragment, type ComponentProps } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { scrollToId, segments } from '../lib/site';
 
-export const ROUTES = {
-  home: '/',
-  approche: '/notre-approche',
-  services: '/services',
-  methode: '/methode',
-  secteurs: '/secteurs',
-  about: '/qui-sommes-nous',
-  contact: '/contact',
-  mentions: '/mentions-legales',
-  privacy: '/confidentialite',
-} as const;
-export type PageKey = keyof typeof ROUTES;
-
-export function Icon({ name, className = '', size }: { name: string; className?: string; size?: number }) {
-  return <span aria-hidden="true" className={`ms ${className}`} style={size ? { fontSize: size } : undefined}>{name}</span>;
-}
-
-/** Découpe « texte *accent* texte » en segments. */
-export function segments(text: string): { t: string; em: boolean }[] {
-  return String(text ?? '').split(/(\*[^*]+\*)/g).filter(Boolean)
-    .map(s => (s.startsWith('*') && s.endsWith('*') ? { t: s.slice(1, -1), em: true } : { t: s, em: false }));
-}
-
-/** Texte avec *accents* en italique doré. */
+/** Texte éditable avec *italique*, **gras** et sauts de ligne. Aucun HTML n'est interprété. */
 export function Rich({ text }: { text: string }) {
-  return <>{segments(text).map((s, i) => (s.em ? <em key={i} className="hl">{s.t}</em> : <Fragment key={i}>{s.t}</Fragment>))}</>;
-}
-
-export const pad = (i: number) => String(i + 1).padStart(2, '0');
-
-export function Eyebrow({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
-  return <span className="eyebrow" data-reveal={delay}>{children}</span>;
-}
-
-export function PageHero({ hero, crumb }: { hero: PageHeroData; crumb: string }) {
   return (
-    <section className="page-hero" data-screen-label={crumb}>
-      {hero.image && <div className="cover kb"><img src={hero.image} alt="" /></div>}
-      <div className="shade" />
-      <div className="page-hero-inner">
-        <nav className="crumbs" aria-label="Fil d'Ariane" data-reveal="0">
-          <Link to={ROUTES.home}>Accueil</Link><Icon name="chevron_right" /><span>{crumb}</span>
-        </nav>
-        <h1 data-reveal="120"><Rich text={hero.title} /></h1>
-        {hero.text && <p data-reveal="260">{hero.text}</p>}
-      </div>
-      <div className="page-hero-rule" />
-    </section>
+    <>
+      {segments(text).map((s, i) => {
+        if (s.kind === 'br') return <br key={i} />;
+        if (s.kind === 'em') return <em key={i}>{s.t}</em>;
+        if (s.kind === 'strong') return <strong key={i}>{s.t}</strong>;
+        return <Fragment key={i}>{s.t}</Fragment>;
+      })}
+    </>
   );
 }
 
-export function whatsappHref(raw: string) {
-  const digits = (raw || '').replace(/[^0-9]/g, '');
-  return digits ? `https://wa.me/${digits}` : '';
-}
+const LINKABLE = /([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+\d{3}(?: \d{2}){5})/g;
 
-export function CtaBand() {
-  const { cta, settings } = useContent();
-  const wa = whatsappHref(settings.whatsapp);
+/** Texte brut où les adresses e-mail et les numéros de téléphone deviennent des liens. */
+export function Linkified({ text }: { text: string }) {
+  const parts = String(text ?? '').split(LINKABLE);
   return (
-    <section className="cta" data-screen-label="CTA">
-      <Icon name="directions_boat" className="cta-boat" />
-      <div className="inner">
-        <div className="stack" style={{ gap: 14, maxWidth: 760 }}>
-          <h2 data-reveal="0"><Rich text={cta.title} /></h2>
-          <span className="text" data-reveal="120">{cta.text}</span>
-        </div>
-        <div data-reveal="200" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <Link to={ROUTES.contact} className="btn btn-navy">{settings.ctaLabel}<Icon name="arrow_forward" /></Link>
-          {wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-outline-navy"><Icon name="chat" size={20} />WhatsApp</a>}
-        </div>
-      </div>
-    </section>
+    <>
+      {parts.map((p, i) => {
+        if (i % 2 === 0) return <Fragment key={i}>{p}</Fragment>;
+        const href = p.includes('@') ? `mailto:${p}` : `tel:${p.replace(/\s/g, '')}`;
+        return <a key={i} className="link-u" href={href}>{p}</a>;
+      })}
+    </>
   );
 }
 
-export function ReportPages() {
-  const { report } = useContent();
+type HashLinkProps = Omit<ComponentProps<typeof Link>, 'to'> & { to: string };
+
+/**
+ * Lien interne qui sait viser une ancre (« /#contact »). Sur la page courante,
+ * il fait défiler sans recharger, même si l'ancre est déjà dans l'adresse.
+ */
+export function HashLink({ to, onClick, ...rest }: HashLinkProps) {
+  const { pathname } = useLocation();
+  const [path, id] = to.split('#');
   return (
-    <div className="report-pages">
-      {report.images.slice(0, 3).map((src, i) => (
-        <div className="report-page" key={i}><img src={src} alt={report.captions[i] ?? `Page ${i + 1} du rapport`} loading="lazy" /></div>
+    <Link
+      to={to}
+      {...rest}
+      onClick={e => {
+        onClick?.(e);
+        if (e.defaultPrevented || !id || (path || '/') !== pathname || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        if (!document.getElementById(id)) return;
+        e.preventDefault();
+        if (window.location.hash !== `#${id}`) window.history.pushState(window.history.state, '', `#${id}`);
+        scrollToId(id);
+      }}
+    />
+  );
+}
+
+
+/** Titre de hero : chaque ligne monte dans son masque (jambages préservés). */
+export function HeroTitle({ lines, className }: { lines: string[]; className: string }) {
+  return (
+    <h1 className={className}>
+      {lines.map((l, i) => (
+        <span className="line-mask" key={i}><span className="line" style={{ animationDelay: `${250 + i * 140}ms` }}><Rich text={l} /></span></span>
       ))}
-    </div>
+    </h1>
   );
 }
