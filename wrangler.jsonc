@@ -6,6 +6,12 @@
   // Adresse *.workers.dev active tant qu'aucun domaine n'est rattaché ; pas d'URL d'aperçu par version.
   "workers_dev": true,
   "preview_urls": false,
+  // Domaines personnalisés : Cloudflare crée les enregistrements DNS et le certificat au déploiement.
+  // Le déploiement échoue si un enregistrement A, AAAA ou CNAME existe déjà pour ces noms : le supprimer d'abord.
+  "routes": [
+    { "pattern": "gulfbridgesourcing.com", "custom_domain": true },
+    { "pattern": "www.gulfbridgesourcing.com", "custom_domain": true }
+  ],
   "assets": {
     "directory": "./dist",
     // Routes de l'application (React Router) : toute URL inconnue renvoie index.html.
