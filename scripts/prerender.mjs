@@ -22,19 +22,38 @@ const SITE_ID = 'gulf-bridge-sourcing';
 
 /* ------------------------------------------------- variables d'environnement */
 
+/**
+ * Variables lues des fichiers .env, puis de l'environnement, qui l'emporte.
+ * On retient d'où vient chaque valeur : quand l'une est fautive, il faut
+ * pouvoir dire quel fichier corriger, et pas en supposer un.
+ */
+const ORIGINE = new Map();
+
 async function loadEnv() {
-  const env = { ...process.env };
+  const env = {};
   for (const file of ['.env', '.env.local', '.env.production', '.env.production.local']) {
     const p = path.join(ROOT, file);
     if (!existsSync(p)) continue;
     const text = await readFile(p, 'utf8');
     for (const line of text.split('\n')) {
-      const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
-      if (m && !process.env[m[1]]) env[m[1]] = m[2].replace(/^["']|["']$/g, '');
+      if (/^\s*#/.test(line)) continue;
+      const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/);
+      if (!m) continue;
+      env[m[1]] = m[2].replace(/^["']|["']$/g, '');
+      ORIGINE.set(m[1], `du fichier ${file}`);
     }
+  }
+  // Une variable d'environnement l'emporte sur les fichiers, comme avec Vite.
+  for (const [k, v] of Object.entries(process.env)) {
+    if (!k.startsWith('VITE_') && !k.startsWith('GBS_')) continue;
+    if (v === undefined || v === '') continue;
+    env[k] = v;
+    ORIGINE.set(k, "d'une variable d'environnement de votre session");
   }
   return env;
 }
+
+const origine = (nom) => ORIGINE.get(nom) ?? "d'une source inconnue";
 
 /* ----------------------------------------------- contenu de la console */
 
@@ -48,18 +67,20 @@ function checkEnv(url, key) {
   if (masque) {
     throw new Error(
       `[prerender] VITE_ATLAS_SUPABASE_ANON_KEY contient le caractère « ${masque} », qui n'appartient pas à une clé.\n` +
-      "  La clé a sans doute été copiée en version masquée depuis le tableau de bord Supabase.\n" +
-      "  Révélez-la avant de la copier, puis recopiez-la dans .env."
+      `  Valeur lue : ${key.slice(0, 24)}...  (${key.length} caractères)\n` +
+      `  Elle vient de ${origine('VITE_ATLAS_SUPABASE_ANON_KEY')}.\n` +
+      "  C'est la clé masquée du tableau de bord Supabase, pas la clé elle-même.\n" +
+      "  Corrigez cette source, pas une autre."
     );
   }
   if (/\s/.test(key)) {
-    throw new Error("[prerender] VITE_ATLAS_SUPABASE_ANON_KEY contient un espace ou un retour à la ligne. Recopiez-la sur une seule ligne.");
+    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_ANON_KEY contient un espace ou un retour à la ligne.\n  Elle vient de ${origine('VITE_ATLAS_SUPABASE_ANON_KEY')}. Recopiez-la sur une seule ligne.`);
   }
   if (!/^ey[A-Za-z0-9._-]+$/.test(key) && !/^sb_[A-Za-z0-9_]+$/.test(key)) {
-    throw new Error("[prerender] VITE_ATLAS_SUPABASE_ANON_KEY n'a pas la forme d'une clé Supabase. Vérifiez .env.");
+    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_ANON_KEY n'a pas la forme d'une clé Supabase.\n  Valeur lue : ${key.slice(0, 24)}...\n  Elle vient de ${origine('VITE_ATLAS_SUPABASE_ANON_KEY')}.`);
   }
   if (!/^https:\/\/[a-z0-9.-]+$/.test(url)) {
-    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_URL invalide : « ${url} ». Attendu : https://<projet>.supabase.co`);
+    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_URL invalide : « ${url} », lue depuis ${origine('VITE_ATLAS_SUPABASE_URL')}.\n  Attendu : https://<projet>.supabase.co`);
   }
 }
 
