@@ -2,17 +2,25 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { defaults, type SiteContent } from './defaults';
 import { fetchContent, type RemoteContent } from '../lib/atlas';
 
-const CACHE_KEY = 'gbs-content-v1';
+const CACHE_KEY = 'gbs-content-v2';
 const ContentContext = createContext<SiteContent>(defaults);
 
-/** Fusion section par section : une valeur distante remplace la valeur par défaut. */
+const kind = (v: unknown) => (Array.isArray(v) ? 'array' : v === null ? 'null' : typeof v);
+
+/**
+ * Fusion section par section : une valeur distante remplace la valeur par
+ * défaut si elle est du même type (chaîne, tableau, booléen…). Une valeur mal
+ * formée dans la console est ignorée au lieu de casser la page.
+ */
 function merge(remote: RemoteContent): SiteContent {
   const out: Record<string, unknown> = {};
   for (const [key, base] of Object.entries(defaults)) {
     const r = remote[key];
-    if (!r || typeof r !== 'object') { out[key] = base; continue; }
+    if (!r || kind(r) !== 'object') { out[key] = base; continue; }
     const section: Record<string, unknown> = { ...(base as Record<string, unknown>) };
-    for (const [k, v] of Object.entries(r)) if (v !== undefined && v !== null) section[k] = v;
+    for (const [k, v] of Object.entries(r)) {
+      if (k in section && kind(v) === kind(section[k])) section[k] = v;
+    }
     out[key] = section;
   }
   return out as SiteContent;

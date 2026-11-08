@@ -1,157 +1,137 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useContent, isPreview } from '../content/ContentProvider';
-import { Icon, ROUTES, type PageKey } from './ui';
+import { HashLink } from './ui';
+import { CONTACT_HREF, NAV, ROUTES, scrollToId, whatsappHref } from '../lib/site';
+import { useReveal, useScrollState, useStacking } from '../lib/effects';
 
 const LOGO = '/images/logo-gbs-white.png';
-const INTRO_MS = 2600;
-
-const NAV: [PageKey, string][] = [
-  ['approche', 'Notre approche'], ['services', 'Services'], ['methode', 'Méthode'],
-  ['secteurs', 'Secteurs'], ['about', 'Qui nous sommes'],
-];
-const NAV_ALL: [PageKey, string][] = [['home', 'Accueil'], ...NAV, ['contact', 'Contact']];
-
-const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-/** L'intro ne se joue qu'une fois par session, jamais en aperçu console. */
-function shouldPlayIntro(enabled: boolean) {
-  if (!enabled || isPreview || reducedMotion() || !('IntersectionObserver' in window)) return false;
-  try {
-    if (sessionStorage.getItem('gbs-intro') === '1') return false;
-    sessionStorage.setItem('gbs-intro', '1');
-  } catch { /* stockage indisponible */ }
-  return true;
-}
-
-/** Apparition au défilement des éléments [data-reveal="délai ms"]. */
-function useReveal(path: string, introPlaying: boolean) {
-  useEffect(() => {
-    if (reducedMotion() || isPreview || !('IntersectionObserver' in window)) return;
-    const io = new IntersectionObserver(entries => entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      e.target.classList.remove('rv-hidden');
-      io.unobserve(e.target);
-    }), { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-
-    const setup = () => document.querySelectorAll<HTMLElement>('[data-reveal]:not([data-rv])').forEach(el => {
-      el.setAttribute('data-rv', '1');
-      let d = Number(el.getAttribute('data-reveal') || 0);
-      if (!introPlaying && d >= 1500) d -= 1500;
-      el.classList.add('rv-hidden', 'rv-ready');
-      el.style.transitionDelay = `${d}ms`;
-      io.observe(el);
-    });
-    setup();
-    const mo = new MutationObserver(setup);
-    mo.observe(document.body, { childList: true, subtree: true });
-
-    // Filet de sécurité : rien ne reste invisible au-dessus de la ligne de flottaison.
-    const safety = window.setTimeout(() => document.querySelectorAll<HTMLElement>('.rv-hidden').forEach(el => {
-      if (el.getBoundingClientRect().top < window.innerHeight) el.classList.remove('rv-hidden');
-    }), 3800);
-    const showAll = () => document.querySelectorAll('.rv-hidden').forEach(el => el.classList.remove('rv-hidden'));
-    window.addEventListener('beforeprint', showAll);
-    return () => { io.disconnect(); mo.disconnect(); clearTimeout(safety); window.removeEventListener('beforeprint', showAll); };
-  }, [path, introPlaying]);
-}
-
-/** Barre de progression de la méthode, liée au défilement. */
-function useScrollEffects(setScrolled: (v: boolean) => void) {
-  useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 40);
-      document.querySelectorAll<HTMLElement>('[data-progress]').forEach(el => {
-        const r = el.parentElement!.getBoundingClientRect();
-        const p = Math.max(0, Math.min(1, (window.innerHeight * 0.85 - r.top) / (window.innerHeight * 0.6)));
-        el.style.width = `${p * 100}%`;
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [setScrolled]);
-}
 
 export default function Layout() {
-  const { settings, intro } = useContent();
-  const { pathname } = useLocation();
-  const [playIntro] = useState(() => shouldPlayIntro(intro.enabled !== false));
-  const [introVisible, setIntroVisible] = useState(playIntro);
+  const { site } = useContent();
+  const { pathname, hash } = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menu, setMenu] = useState(false);
+  const closeBtn = useRef<HTMLButtonElement>(null);
+  const menuBtn = useRef<HTMLButtonElement>(null);
+  const wa = whatsappHref(site.whatsapp);
 
+  // Changement de page : haut de page, ou section demandée par l'ancre.
+  useLayoutEffect(() => {
+    setMenu(false);
+    const id = decodeURIComponent(hash.slice(1));
+    if (!id) { window.scrollTo(0, 0); return; }
+    const raf = requestAnimationFrame(() => { if (!scrollToId(id, false)) window.scrollTo(0, 0); });
+    return () => cancelAnimationFrame(raf);
+  }, [pathname, hash]);
+
+  // Liens vers une ancre de la page courante : défilement maîtrisé (compatible avec les sections collantes).
   useEffect(() => {
-    if (!introVisible) return;
-    const t = window.setTimeout(() => setIntroVisible(false), INTRO_MS + 100);
-    return () => clearTimeout(t);
-  }, [introVisible]);
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element | null)?.closest?.('a[href*="#"]') as HTMLAnchorElement | null;
+      if (!a || a.target === '_blank') return;
+      const url = new URL(a.href, window.location.href);
+      if (url.origin !== window.location.origin || url.pathname !== window.location.pathname || !url.hash) return;
+      const id = decodeURIComponent(url.hash.slice(1));
+      if (!document.getElementById(id)) return;
+      e.preventDefault();
+      setMenu(false);
+      if (window.location.hash !== url.hash) window.history.pushState(window.history.state, '', url.hash);
+      scrollToId(id);
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, []);
 
-  useLayoutEffect(() => { window.scrollTo(0, 0); setMenu(false); }, [pathname]);
-  useReveal(pathname, playIntro);
-  useScrollEffects(setScrolled);
+  // Menu mobile : Échap pour fermer, défilement bloqué, focus géré.
+  useEffect(() => {
+    if (!menu) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeBtn.current?.focus();
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenu(false); };
+    const mq = window.matchMedia('(min-width: 960px)');
+    const onMq = () => { if (mq.matches) setMenu(false); };
+    window.addEventListener('keydown', onKey);
+    mq.addEventListener?.('change', onMq);
+    const btn = menuBtn.current;
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+      mq.removeEventListener?.('change', onMq);
+      btn?.focus();
+    };
+  }, [menu]);
 
-  // Pages à fond clair en haut : l'en-tête reste opaque pour garder le logo lisible.
-  const lightTop = pathname === ROUTES.mentions || pathname === ROUTES.privacy;
-  const year = new Date().getFullYear();
-  const animClass = `anim${playIntro ? '' : ' no-intro'}`;
+  const onScrolled = useCallback((v: boolean) => setScrolled(v), []);
+  useScrollState(onScrolled, pathname);
+  useReveal(pathname, !isPreview);
+  useStacking(pathname, site.stacking !== false && !isPreview, site.stackingMobile !== false);
+
+  const solidTop = pathname === ROUTES.legal;
+  const closeMenu = () => setMenu(false);
 
   return (
-    <div className={animClass}>
-      {introVisible && (
-        <div className="intro" aria-hidden="true">
-          <div className="intro-panel top" /><div className="intro-panel bot" />
-          <div className="intro-center">
-            <img src={LOGO} alt="" />
-            <div className="intro-line" />
-            <div className="intro-tag"><span>{intro.cityFrom}</span><i /><span>{intro.cityTo}</span></div>
+    <div className="site">
+      <a className="skip" href="#contenu">Aller au contenu</a>
+      <header className={`header${scrolled || solidTop ? ' solid' : ''}`}>
+        <div className="header-bar">
+          <Link to={ROUTES.home} className="header-logo"><img src={LOGO} alt="Gulf Bridge Sourcing, retour à l'accueil" width={89} height={46} /></Link>
+          <nav className="nav" aria-label="Navigation principale">
+            {NAV.map(n => (
+              <HashLink key={n.to} to={n.to} className={n.to === pathname ? 'current' : undefined} aria-current={n.to === pathname ? 'page' : undefined}>{n.label}</HashLink>
+            ))}
+            <HashLink to={CONTACT_HREF} className="nav-cta">{site.ctaLabel}</HashLink>
+          </nav>
+          <button ref={menuBtn} type="button" className="menu-btn" aria-label="Ouvrir le menu" aria-expanded={menu} aria-controls="menu-mobile" onClick={() => setMenu(true)}>Menu</button>
+        </div>
+      </header>
+
+      {menu && (
+        <div id="menu-mobile" className="menu" role="dialog" aria-modal="true" aria-label="Menu">
+          <div className="menu-top">
+            <img src={LOGO} alt="Gulf Bridge Sourcing" width={89} height={46} />
+            <button ref={closeBtn} type="button" className="menu-btn" onClick={closeMenu}>Fermer</button>
+          </div>
+          <nav className="menu-nav" aria-label="Navigation principale">
+            {NAV.map(n => (
+              <HashLink key={n.to} to={n.to} onClick={closeMenu} aria-current={n.to === pathname ? 'page' : undefined}>{n.label}</HashLink>
+            ))}
+          </nav>
+          <div className="menu-actions">
+            <HashLink to={CONTACT_HREF} className="btn btn-ivory" onClick={closeMenu}>{site.ctaLabel}</HashLink>
+            {wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-outline">WhatsApp</a>}
           </div>
         </div>
       )}
 
-      <header className={`header${scrolled || menu || lightTop ? ' solid' : ''}${scrolled ? ' scrolled' : ''}`}>
-        <div className="header-bar">
-          <Link to={ROUTES.home} className="header-logo" aria-label="Gulf Bridge Sourcing, accueil"><img src={LOGO} alt="Gulf Bridge Sourcing" /></Link>
-          <nav className="nav" aria-label="Navigation principale">
-            {NAV.map(([k, label]) => <NavLink key={k} to={ROUTES[k]}>{label}</NavLink>)}
-            <Link to={ROUTES.contact} className="btn btn-gold">{settings.ctaLabel}<Icon name="arrow_forward" /></Link>
-          </nav>
-          <button className="btn-reset menu-btn" aria-label="Menu" aria-expanded={menu} onClick={() => setMenu(m => !m)}>
-            <Icon name={menu ? 'close' : 'menu'} />
-          </button>
-        </div>
-        {menu && (
-          <nav className="mobile-menu" aria-label="Navigation mobile">
-            {NAV_ALL.map(([k, label]) => <NavLink key={k} to={ROUTES[k]} end>{label}<Icon name="arrow_forward" /></NavLink>)}
-            <Link to={ROUTES.contact} className="btn btn-gold">{settings.ctaLabel}</Link>
-          </nav>
-        )}
-      </header>
-
-      <main><Outlet /></main>
+      <main id="contenu" tabIndex={-1}><Outlet /></main>
 
       <footer className="footer">
-        <div className="wrap">
+        <div className="wrap footer-in">
           <div className="footer-top">
-            <img src={LOGO} alt="Gulf Bridge Sourcing" />
-            <nav aria-label="Plan du site">
-              {NAV_ALL.map(([k, label]) => <Link key={k} to={ROUTES[k]}>{label}</Link>)}
+            <img src={LOGO} alt="Gulf Bridge Sourcing" width={116} height={60} loading="lazy" />
+            <nav aria-label="Pied de page">
+              {NAV.map(n => <HashLink key={n.to} to={n.to}>{n.label}</HashLink>)}
+              <HashLink to={CONTACT_HREF}>Contact</HashLink>
             </nav>
           </div>
           <div className="footer-bottom">
-            <span>
-              <span>Gulf Bridge Sourcing · {settings.legalName} · RCCM {settings.rccm} · Licence Chine {settings.chinaLicence}</span>
-              <span>Guangzhou : {settings.addressGuangzhou} · Abidjan : {settings.addressAbidjan} · <a href={`mailto:${settings.email}`}>{settings.email}</a> · {settings.phoneAbidjan}</span>
+            <span>{site.footerLine}</span>
+            <span className="footer-legal">
+              <Link to={ROUTES.legal}>Mentions légales</Link>
+              <HashLink to={`${ROUTES.legal}#confidentialite`}>Confidentialité</HashLink>
+              <span>{site.copyright}</span>
             </span>
-            <span className="footer-links">
-              <Link to={ROUTES.mentions}>Mentions légales</Link>
-              <Link to={ROUTES.privacy}>Confidentialité</Link>
-              {settings.linkedin && <a href={settings.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>}
-            </span>
-            <span>© {year} Gulf Bridge Sourcing</span>
           </div>
         </div>
       </footer>
+
+      <div className="mobile-bar">
+        <HashLink to={CONTACT_HREF}>{site.ctaLabel}</HashLink>
+        {wa && <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp</a>}
+      </div>
     </div>
   );
 }

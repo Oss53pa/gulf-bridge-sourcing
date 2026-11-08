@@ -1,7 +1,8 @@
 /**
  * Accès au backend Atlas Studio (projet Supabase partagé) via PostgREST,
  * avec la clé publique anon. Le contenu est en lecture seule ; les demandes
- * de contact passent par la RPC submit_client_site_lead.
+ * de contact passent par la RPC submit_client_site_lead, qui valide les champs
+ * (longueurs, format de l'e-mail) et limite le débit côté serveur.
  */
 import { SITE_ID } from '../content/defaults';
 
@@ -56,12 +57,26 @@ export async function submitLead(lead: LeadInput): Promise<void> {
     }),
   });
   if (!res.ok) {
+    // Message générique côté client : le détail technique reste côté serveur.
     let msg = "L'envoi a échoué. Réessayez ou écrivez-nous par e-mail.";
     try {
       const body = await res.json();
       if (body?.code === '54000') msg = 'Trop de demandes envoyées. Réessayez dans une heure.';
-      else if (body?.code === '22023' && typeof body.message === 'string') msg = `Vérifiez le formulaire : ${body.message}.`;
+      else if (body?.code === '22023') msg = 'Vérifiez les champs du formulaire, puis réessayez.';
     } catch { /* corps non JSON */ }
     throw new Error(msg);
   }
+}
+
+/** Demande du modèle de rapport d'inspection : enregistrée comme une demande, traitée par l'équipe. */
+export function submitReportRequest(email: string): Promise<void> {
+  return submitLead({
+    name: 'Demande du modèle de rapport',
+    company: '',
+    email,
+    phone: '',
+    service: 'Modèle de rapport (PDF)',
+    message: "Envoyer le modèle complet du rapport d'inspection à cette adresse.",
+    page: 'accueil-rapport',
+  });
 }
