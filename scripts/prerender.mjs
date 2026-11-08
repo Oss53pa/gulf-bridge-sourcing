@@ -68,19 +68,19 @@ function checkEnv(url, key) {
     throw new Error(
       `[prerender] VITE_ATLAS_SUPABASE_ANON_KEY contient le caractère « ${masque} », qui n'appartient pas à une clé.\n` +
       `  Valeur lue : ${key.slice(0, 24)}...  (${key.length} caractères)\n` +
-      `  Elle vient de ${origine('VITE_ATLAS_SUPABASE_ANON_KEY')}.\n` +
+      `  Elle vient ${origine('VITE_ATLAS_SUPABASE_ANON_KEY')}.\n` +
       "  C'est la clé masquée du tableau de bord Supabase, pas la clé elle-même.\n" +
       "  Corrigez cette source, pas une autre."
     );
   }
   if (/\s/.test(key)) {
-    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_ANON_KEY contient un espace ou un retour à la ligne.\n  Elle vient de ${origine('VITE_ATLAS_SUPABASE_ANON_KEY')}. Recopiez-la sur une seule ligne.`);
+    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_ANON_KEY contient un espace ou un retour à la ligne.\n  Elle vient ${origine('VITE_ATLAS_SUPABASE_ANON_KEY')}. Recopiez-la sur une seule ligne.`);
   }
   if (!/^ey[A-Za-z0-9._-]+$/.test(key) && !/^sb_[A-Za-z0-9_]+$/.test(key)) {
-    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_ANON_KEY n'a pas la forme d'une clé Supabase.\n  Valeur lue : ${key.slice(0, 24)}...\n  Elle vient de ${origine('VITE_ATLAS_SUPABASE_ANON_KEY')}.`);
+    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_ANON_KEY n'a pas la forme d'une clé Supabase.\n  Valeur lue : ${key.slice(0, 24)}...\n  Elle vient ${origine('VITE_ATLAS_SUPABASE_ANON_KEY')}.`);
   }
   if (!/^https:\/\/[a-z0-9.-]+$/.test(url)) {
-    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_URL invalide : « ${url} », lue depuis ${origine('VITE_ATLAS_SUPABASE_URL')}.\n  Attendu : https://<projet>.supabase.co`);
+    throw new Error(`[prerender] VITE_ATLAS_SUPABASE_URL invalide : « ${url} », lue ${origine('VITE_ATLAS_SUPABASE_URL')}.\n  Attendu : https://<projet>.supabase.co`);
   }
 }
 
