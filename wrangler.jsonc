@@ -12,6 +12,11 @@
     // Chaque page du site est un fichier HTML généré à l'avance : une adresse
     // inconnue doit répondre 404, et non renvoyer l'accueil.
     "not_found_handling": "404-page",
-    "html_handling": "auto-trailing-slash"
+    // Sans barre oblique finale : c'est la forme écrite dans les adresses
+    // canoniques et dans le plan du site. Avec "auto-trailing-slash", chaque
+    // adresse canonique répondait par une redirection 307 vers sa variante
+    // avec barre, ce qui fait payer un aller-retour à chaque visite et met
+    // l'adresse servie en désaccord avec l'adresse déclarée.
+    "html_handling": "drop-trailing-slash"
   }
 }
