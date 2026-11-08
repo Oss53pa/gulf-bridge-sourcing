@@ -12,6 +12,7 @@
  */
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
@@ -316,7 +317,9 @@ async function main() {
 
   const remote = await fetchContent(env);
   checkConsole(remote);
-  const { renderAll, renderNotFound } = await import(SSR);
+  // Sous Windows, import() refuse un chemin absolu (« Received protocol 'c:' ») :
+  // il lui faut une URL file://. pathToFileURL fonctionne sur les trois systèmes.
+  const { renderAll, renderNotFound } = await import(pathToFileURL(SSR).href);
   const pages = renderAll(remote);
 
   // Instantané du contenu, pour que l'hydratation retrouve le même texte.
