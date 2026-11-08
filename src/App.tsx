@@ -24,7 +24,7 @@ function Seo() {
 export default function App() {
   return (
     <ContentProvider>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <BrowserRouter>
         <Seo />
         <Routes>
           <Route element={<Layout />}>

@@ -51,7 +51,12 @@ Origines autorisées : `VITE_CONSOLE_ORIGINS`.
 
 ## Déploiement
 
-Cloudflare Workers (fichiers statiques) : `wrangler.jsonc` (fallback SPA) et `public/_headers` (cache, `frame-ancestors` pour la console).
+Cloudflare Workers (fichiers statiques) : `wrangler.jsonc` (fallback SPA, domaines `gulfbridgesourcing.com` et `www.`)
+et `public/_headers` (CSP stricte, cache). Toute nouvelle origine appelée par le site (outil d'audience, API…) doit être
+ajoutée à la CSP, sinon le navigateur la bloque.
+
+Au premier déploiement avec les domaines, supprimer d'abord dans Cloudflare (DNS) les enregistrements A, AAAA ou CNAME
+existants pour `gulfbridgesourcing.com` et `www`, sinon wrangler refuse de rattacher le domaine.
 
 ```bash
 npx wrangler login   # une fois
