@@ -63,4 +63,6 @@ npx wrangler login   # une fois
 npm run deploy       # build avec .env puis déploiement
 ```
 
+Le build échoue si `VITE_ATLAS_SUPABASE_URL` ou `VITE_ATLAS_SUPABASE_ANON_KEY` manque. Sous Windows PowerShell 5, écrire le `.env` avec `-Encoding ascii` : `-Encoding utf8` ajoute un BOM qui rend la première variable illisible.
+
 Les variables `VITE_*` sont lues au moment du build : elles doivent être présentes dans `.env` (ou dans les variables de build Cloudflare si le déploiement est relié à GitHub).
