@@ -37,7 +37,7 @@ export default function Legal() {
           <article id="confidentialite" data-screen-label="Confidentialité">
             <h2>{l.privacyTitle}</h2>
             {blocks(l.privacy, defaults.mentions_legales.privacy).map((b, i) => <Block key={i} b={b} />)}
-            <p className="legal-date">{l.updatedLabel}</p>
+            <p className="legal-date">{l.privacyUpdatedLabel}</p>
           </article>
         </div>
       </div>

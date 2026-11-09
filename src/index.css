@@ -223,6 +223,11 @@ main > section[data-stack]::after { content: ''; position: absolute; inset: 0; b
 
 /* IV. Services / VII. Engagements */
 .cols3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 0 clamp(24px, 3vw, 48px); border-top: 1px solid rgba(12, 20, 25, .3); }
+.cols4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); }
+.tracking { margin: 0; display: flex; flex-direction: column; gap: 14px; max-width: 980px; }
+.tracking-frame { background: var(--sand); padding: clamp(16px, 2.4vw, 32px); }
+.tracking-frame img { display: block; width: 100%; height: auto; box-shadow: 0 36px 56px -28px rgba(12, 20, 25, .45); }
+.tracking figcaption { font-size: 13.5px; line-height: 1.55; color: var(--muted); }
 .col3 { padding: clamp(32px, 3.4vw, 52px) 0; display: flex; flex-direction: column; gap: 20px; border-bottom: 1px solid rgba(12, 20, 25, .2); }
 .col3-tight { padding: clamp(32px, 3.4vw, 48px) 0; gap: 16px; }
 .big-n { font-family: var(--serif); font-weight: 300; font-size: 64px; line-height: .8; color: var(--bronze); }

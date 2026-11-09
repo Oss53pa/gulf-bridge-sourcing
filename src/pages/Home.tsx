@@ -309,9 +309,9 @@ export default function Home() {
             </div>
             <p className="head-aside" data-reveal="150">{cf.text}</p>
           </div>
-          <div className="cols3">
+          <div className="cols3 cols4">
             {arr(cf.commitments, defaults.accueil_confiance.commitments).map((x, i) => (
-              <article key={i} className="col3 col3-tight" data-reveal={i * 120}>
+              <article key={i} className="col3 col3-tight" data-reveal={(i % 4) * 120}>
                 <span className="eyebrow tight">{x.tag}</span>
                 <h3 className="h3 h3-sm">{x.title}</h3>
                 {x.text && <p className="muted">{x.text}</p>}
@@ -319,6 +319,12 @@ export default function Home() {
               </article>
             ))}
           </div>
+          {cf.trackingImage && (
+            <figure className="tracking" data-reveal="0">
+              <div className="tracking-frame"><img src={cf.trackingImage} alt={cf.trackingImageAlt} loading="lazy" /></div>
+              <figcaption>{cf.trackingCaption}</figcaption>
+            </figure>
+          )}
           <div className="col" style={{ gap: 28 }}>
             <div className="cases-head">
               <h3 className="h3 h3-cases" data-reveal="0">{cf.casesTitle}</h3>
