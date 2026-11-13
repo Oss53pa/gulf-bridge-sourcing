@@ -61,7 +61,7 @@ export const defaults = {
     eyebrow: "Bureau d'achat en Chine · Abidjan & Guangzhou",
     titleLines: ['Vos achats en Chine,', 'vérifiés sur place', '*avant* de payer le solde.'],
     text: "Nous mettons les fabricants en concurrence, vérifions l'usine, négocions le contrat et contrôlons la marchandise.",
-    note: 'Premier contact sous 1 jour ouvré, gratuit.',
+    note: 'Premier contact sous 48 heures ouvrées, gratuit.',
     guaranteeLabel: 'Notre garantie',
     guarantee: "Le solde du fournisseur n'est versé qu'après une inspection validée.",
     image: '/images/hero-port.webp',
@@ -253,7 +253,7 @@ export const defaults = {
   accueil_contact: {
     eyebrow: 'IX — Demander une étude',
     title: 'Envoyez-nous le nom de votre *fournisseur*.',
-    text: 'Ou votre cahier des charges. Premier contact sous 1 jour ouvré, gratuit. Proposition chiffrée avant tout engagement.',
+    text: 'Ou votre cahier des charges. Premier contact sous 48 heures ouvrées, gratuit. Proposition chiffrée avant tout engagement.',
     whatsappLabel: 'WhatsApp',
     phoneLabel: 'Téléphone',
     emailLabel: 'E-mail',
@@ -288,7 +288,7 @@ export const defaults = {
     labelFiles: 'Pièces jointes',
     // Aucun stockage privé n'est encore branché : les documents sont demandés
     // par e-mail ou WhatsApp après le premier contact.
-    filesNote: 'Cahier des charges, plans, photos : envoyez-les par e-mail ou sur WhatsApp, nous vous répondons sous 1 jour ouvré.',
+    filesNote: 'Cahier des charges, plans, photos : envoyez-les par e-mail ou sur WhatsApp, nous vous répondons sous 48 heures ouvrées.',
     labelSource: 'Comment nous avez-vous connus ?',
     consent: 'Vos données servent uniquement à répondre à votre demande. Elles ne sont jamais vendues ni cédées.',
     consentLink: 'Politique de confidentialité',
@@ -299,7 +299,7 @@ export const defaults = {
     errorTooLong: 'Ce texte est trop long.',
     errorDate: 'Indiquez une date valide.',
     sentLabel: 'Demande envoyée',
-    sentTitle: 'Merci. Nous revenons vers vous sous 1 jour ouvré.',
+    sentTitle: 'Merci. Nous revenons vers vous sous 48 heures ouvrées.',
     sentText: "Une question d'ici là ? Écrivez-nous sur WhatsApp.",
   },
 
@@ -372,7 +372,7 @@ export const defaults = {
   qsn_contact: {
     eyebrow: 'Contact',
     title: 'Parlons de votre prochain *projet*.',
-    note: 'Premier contact sous 1 jour ouvré, gratuit.',
+    note: 'Premier contact sous 48 heures ouvrées, gratuit.',
     image: '/images/hero-port.webp',
   },
 
