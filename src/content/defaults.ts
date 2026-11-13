@@ -381,7 +381,7 @@ export const defaults = {
     mentionsTitle: 'Mentions légales',
     privacyTitle: 'Politique de confidentialité',
     updatedLabel: 'Dernière mise à jour : 8 novembre 2026.',
-    privacyUpdatedLabel: 'Dernière mise à jour : 9 novembre 2026.',
+    privacyUpdatedLabel: 'Dernière mise à jour : 10 novembre 2026.',
     // À mettre à jour dès réception : numéro RCCM, compte contribuable, autorisation ARTCI.
     mentions: [
       { title: 'Éditeur du site', paragraphs: ["Le site gulfbridgesourcing.com est édité par GBS, société à responsabilité limitée (SARL) au capital de 1 000 000 FCFA, immatriculée au Registre du commerce et du crédit mobilier d'Abidjan (immatriculation en cours). Son numéro de compte contribuable est en cours d'attribution et son siège social est situé L90, Cité BH, Bingerville (Abidjan), Côte d'Ivoire.", 'Téléphone : +225 07 67 31 61 67', 'E-mail : contact@gulfbridgesourcing.com'], list: [], after: [] },
