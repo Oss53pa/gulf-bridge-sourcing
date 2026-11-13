@@ -61,7 +61,7 @@ export const defaults = {
     eyebrow: "Bureau d'achat en Chine · Abidjan & Guangzhou",
     titleLines: ['Vos achats en Chine,', 'vérifiés sur place', '*avant* de payer le solde.'],
     text: "Nous mettons les fabricants en concurrence, vérifions l'usine, négocions le contrat et contrôlons la marchandise.",
-    note: 'Premier contact sous 1 jour ouvré, gratuit.',
+    note: 'Premier contact sous 48 heures ouvrées, gratuit.',
     guaranteeLabel: 'Notre garantie',
     guarantee: "Le solde du fournisseur n'est versé qu'après une inspection validée.",
     image: '/images/hero-port.webp',
@@ -253,7 +253,7 @@ export const defaults = {
   accueil_contact: {
     eyebrow: 'IX — Demander une étude',
     title: 'Envoyez-nous le nom de votre *fournisseur*.',
-    text: 'Ou votre cahier des charges. Premier contact sous 1 jour ouvré, gratuit. Proposition chiffrée avant tout engagement.',
+    text: 'Ou votre cahier des charges. Premier contact sous 48 heures ouvrées, gratuit. Proposition chiffrée avant tout engagement.',
     whatsappLabel: 'WhatsApp',
     phoneLabel: 'Téléphone',
     emailLabel: 'E-mail',
@@ -288,7 +288,7 @@ export const defaults = {
     labelFiles: 'Pièces jointes',
     // Aucun stockage privé n'est encore branché : les documents sont demandés
     // par e-mail ou WhatsApp après le premier contact.
-    filesNote: 'Cahier des charges, plans, photos : envoyez-les par e-mail ou sur WhatsApp, nous vous répondons sous 1 jour ouvré.',
+    filesNote: 'Cahier des charges, plans, photos : envoyez-les par e-mail ou sur WhatsApp, nous vous répondons sous 48 heures ouvrées.',
     labelSource: 'Comment nous avez-vous connus ?',
     consent: 'Vos données servent uniquement à répondre à votre demande. Elles ne sont jamais vendues ni cédées.',
     consentLink: 'Politique de confidentialité',
@@ -299,7 +299,7 @@ export const defaults = {
     errorTooLong: 'Ce texte est trop long.',
     errorDate: 'Indiquez une date valide.',
     sentLabel: 'Demande envoyée',
-    sentTitle: 'Merci. Nous revenons vers vous sous 1 jour ouvré.',
+    sentTitle: 'Merci. Nous revenons vers vous sous 48 heures ouvrées.',
     sentText: "Une question d'ici là ? Écrivez-nous sur WhatsApp.",
   },
 
@@ -372,7 +372,7 @@ export const defaults = {
   qsn_contact: {
     eyebrow: 'Contact',
     title: 'Parlons de votre prochain *projet*.',
-    note: 'Premier contact sous 1 jour ouvré, gratuit.',
+    note: 'Premier contact sous 48 heures ouvrées, gratuit.',
     image: '/images/hero-port.webp',
   },
 
@@ -381,7 +381,7 @@ export const defaults = {
     mentionsTitle: 'Mentions légales',
     privacyTitle: 'Politique de confidentialité',
     updatedLabel: 'Dernière mise à jour : 8 novembre 2026.',
-    privacyUpdatedLabel: 'Dernière mise à jour : 10 novembre 2026.',
+    privacyUpdatedLabel: 'Dernière mise à jour : 13 novembre 2026.',
     // À mettre à jour dès réception : numéro RCCM, compte contribuable, autorisation ARTCI.
     mentions: [
       { title: 'Éditeur du site', paragraphs: ["Le site gulfbridgesourcing.com est édité par GBS, société à responsabilité limitée (SARL) au capital de 1 000 000 FCFA, immatriculée au Registre du commerce et du crédit mobilier d'Abidjan (immatriculation en cours). Son numéro de compte contribuable est en cours d'attribution et son siège social est situé L90, Cité BH, Bingerville (Abidjan), Côte d'Ivoire.", 'Téléphone : +225 07 67 31 61 67', 'E-mail : contact@gulfbridgesourcing.com'], list: [], after: [] },
@@ -399,7 +399,7 @@ export const defaults = {
       { title: '1. Qui est responsable de vos données', paragraphs: ['Le responsable du traitement est GBS, dont les coordonnées figurent dans les mentions légales. Pour toute question sur vos données, écrivez à contact@gulfbridgesourcing.com.', "Cette politique applique la loi ivoirienne n° 2013-450 du 19 juin 2013 relative à la protection des données à caractère personnel, sous le contrôle de l'Autorité de régulation des télécommunications de Côte d'Ivoire (ARTCI). Si vous êtes au Gabon ou au Cameroun, la loi de votre pays s'applique aussi à vos données."], list: [], after: [] },
       { title: '2. Les données que nous collectons', paragraphs: ['Nous collectons seulement ce que vous nous transmettez par le formulaire « Demander une étude » :'], list: ['vos coordonnées : nom et prénom, fonction, entreprise, e-mail professionnel, numéro WhatsApp ;', "votre projet : spécialité ou secteur, service souhaité, pays de livraison, produits et quantités, date d'ouverture ou de besoin, fournisseur déjà identifié ;", "la façon dont vous nous avez connus, si vous l'indiquez."], after: ["Le formulaire n'accepte pas de fichiers. Si vous nous envoyez ensuite des documents par e-mail ou par WhatsApp (cahier des charges, plans, photos), nous les traitons dans les mêmes conditions.", "Si vous demandez le modèle de rapport d'inspection, nous collectons votre adresse e-mail.", "Pour protéger le formulaire contre les envois abusifs, le nombre de demandes est limité par adresse e-mail. Comme pour tout site, nos prestataires techniques enregistrent l'adresse IP de connexion dans leurs journaux de sécurité ; nous ne l'utilisons à aucune autre fin."] },
       { title: '3. Pourquoi nous les utilisons', paragraphs: [], list: ['répondre à votre demande et vous rappeler ;', 'préparer une proposition chiffrée ;', "suivre la relation commerciale si une collaboration s'engage ;", 'vous envoyer le document que vous avez demandé ;', 'vous permettre de suivre votre dossier en ligne, si vous en faites la demande.'], after: ["Nous utilisons vos données parce que vous y avez consenti en envoyant le formulaire, et parce qu'elles sont nécessaires pour préparer un contrat à votre demande. Elles ne sont jamais vendues, louées ni cédées. Nous ne vous envoyons pas de lettre d'information sans votre accord exprès."] },
-      { title: '4. Qui y a accès', paragraphs: [], list: ["L'équipe de Gulf Bridge Sourcing à Abidjan et à Guangzhou, chacun pour ce qui le concerne. Le bureau de Guangzhou a besoin de votre cahier des charges pour consulter les usines. Votre nom et celui de votre entreprise ne sont jamais communiqués aux fabricants avant que vous ayez choisi votre fournisseur.", "Nos prestataires techniques : l'hébergeur du site (Cloudflare) et l'outil de gestion des demandes (console Atlas Studio, dont la base de données est hébergée par Supabase). Ils traitent vos données pour notre compte, sans pouvoir les utiliser pour eux-mêmes."], after: [] },
+      { title: '4. Qui y a accès', paragraphs: [], list: ["L'équipe de Gulf Bridge Sourcing à Abidjan et à Guangzhou, chacun pour ce qui le concerne. Le bureau de Guangzhou a besoin de votre cahier des charges pour consulter les usines. Votre nom et celui de votre entreprise ne sont jamais communiqués aux fabricants avant que vous ayez choisi votre fournisseur.", "Nos prestataires techniques : l'hébergeur du site (Cloudflare), l'outil de gestion des demandes (console Atlas Studio, dont la base de données est hébergée par Supabase) et le service d'envoi des e-mails (Resend, États-Unis), qui transmet chaque demande reçue par le formulaire à notre équipe. Ils traitent vos données pour notre compte, sans pouvoir les utiliser pour eux-mêmes."], after: [] },
       { title: '5. Le lien de suivi de votre dossier', paragraphs: ["Si vous nous confiez un dossier, nous pouvons vous remettre un lien personnel qui permet de suivre son avancement sans créer de compte. Ce lien affiche le nom de votre entreprise, les phases du dossier, les pièces attendues de votre part, les documents validés, les points bloquants que nous choisissons de partager, les expéditions et vos factures.", "Le lien est remis à la personne que vous désignez. Il est valable 30 jours par défaut, 90 jours au plus, et nous pouvons le révoquer à tout moment, à votre demande ou de notre propre initiative. Toute personne qui détient le lien peut consulter ces informations : ne le transférez pas, et signalez-nous sans délai un lien envoyé par erreur, nous le révoquerons."], list: [], after: ["Pour chaque lien, nous enregistrons le nom de son destinataire, ses dates de création, d'expiration et de révocation, ainsi que le nombre de consultations et la date de la dernière. Ces informations servent à protéger l'accès à votre dossier (au-delà de 60 consultations par heure, l'accès est suspendu) et sont conservées avec votre dossier."] },
       { title: "6. Transferts hors de Côte d'Ivoire", paragraphs: ["Vos données sont hébergées hors de Côte d'Ivoire et consultées par notre équipe en Chine. Ces transferts sont limités à ce qui est nécessaire pour traiter votre demande. Ils sont encadrés par des engagements de confidentialité. Une demande d'autorisation est en cours auprès de l'ARTCI."], list: [], after: [] },
       { title: '7. Combien de temps nous les conservons', paragraphs: [], list: ['Demande sans suite : 3 ans après notre dernier échange.', 'Documents transmis pour une demande sans suite : supprimés 12 mois après la demande.', 'Client : pendant toute la relation, puis pendant les durées légales de conservation des documents commerciaux et comptables.'], after: [] },
